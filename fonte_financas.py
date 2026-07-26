@@ -217,13 +217,17 @@ def _normalizado(bruto):
         "fonte": NOME,
         "id": bruto["id"],
         "titulo": "Leilão n.º %s" % bruto.get("numero", bruto["id"]),
+        "resumo": "Venda das Finanças · %s" % bruto.get("localizacao", CONCELHO),
         "descricao": bruto.get("descricao", ""),
         "valor": bruto.get("valor", "?"),
         "data_fim": bruto.get("data_venda", "?"),
         "rotulo_data": "Data da venda",
         "local": bruto.get("localizacao", CONCELHO),
         "url": bruto["url"],
-        "extra": [],
+        "coordenadas": None,
+        "extra": [("Indexado em", bruto["data_indexacao"])]
+        if bruto.get("data_indexacao")
+        else [],
     }
 
 

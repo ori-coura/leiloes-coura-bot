@@ -1,7 +1,89 @@
 {
+  "atualizado_em": "2026-07-26T17:16:47+00:00",
   "fontes": {
     "eleiloes": {
-      "itens": {}
+      "itens": {
+        "LO1493402026": {
+          "ativo": true,
+          "item": {
+            "coordenadas": "41.91179541,-8.56417074",
+            "data_fim": "2026-08-05 11:00",
+            "descricao": "Fração Autónoma designada pela letra J - Garagem automóvel, com 25,90 m2, no lugar n.º 10 na cave do prédio urbano sito na Avenida Cónego Bernardo Chouzal, n.º 252, em Paredes de Coura, descrita na Conservatória do Registo Predial de Paredes de Coura sob o n.º 584 - J Freguesia Paredes de Coura e inscrito na respetiva matriz urbana sob o artigo n.º 929 – J, da União das Freguesias de Paredes de Coura e Resende, Concelho de Paredes de Coura.",
+            "extra": [
+              [
+                "Tipo",
+                "Imóvel / Garagem / Arrumos"
+              ],
+              [
+                "Modalidade",
+                "Leilão online"
+              ],
+              [
+                "Valor mínimo",
+                "8 500,00 €"
+              ],
+              [
+                "Lance atual",
+                "5 050,00 €"
+              ],
+              [
+                "Área",
+                "25,9 m²"
+              ],
+              [
+                "Processo",
+                "800/24.6T8VCT"
+              ]
+            ],
+            "fonte": "eleiloes",
+            "id": "LO1493402026",
+            "local": "Avenida Cónego Bernardo Chouzal 252, União das freguesias de Paredes de Coura e Resende, Paredes de Coura",
+            "resumo": "Garagem / Arrumos · 25,9 m² · União das freguesias de Paredes de Coura e Resende",
+            "rotulo_data": "Termina em",
+            "titulo": "Garagem / Arrumos — Garagem fechada - Paredes de Coura",
+            "url": "https://www.e-leiloes.pt/evento/LO1493402026",
+            "valor": "10 000,00 €"
+          },
+          "ultima_vez_ativo": "2026-07-26T17:16:45+00:00",
+          "visto_em": "2026-07-26T17:15:52+00:00"
+        },
+        "NP1227312026": {
+          "ativo": true,
+          "item": {
+            "coordenadas": "41.90911240,-8.56070057",
+            "data_fim": "2026-09-22 14:30",
+            "descricao": "Quota pertencente à Executada na sociedade \"Condução Automóvel Soutelos, Unipessoal, Ldª,  NIPC 504 216341, com o valor nominal de noventa e nove mil setecentos e cinquenta e nove euros e cinquenta e oito cêntimos.",
+            "extra": [
+              [
+                "Tipo",
+                "Direito / Quotas"
+              ],
+              [
+                "Modalidade",
+                "Negócio particular"
+              ],
+              [
+                "Valor mínimo",
+                "84 795,64 €"
+              ],
+              [
+                "Processo",
+                "191/06.7TBPCR"
+              ]
+            ],
+            "fonte": "eleiloes",
+            "id": "NP1227312026",
+            "local": "Rua Doutor Afonso Viana 60, União das freguesias de Paredes de Coura e Resende, Paredes de Coura",
+            "resumo": "Quotas · 0 m² · União das freguesias de Paredes de Coura e Resende",
+            "rotulo_data": "Termina em",
+            "titulo": "Quotas — Quota",
+            "url": "https://www.e-leiloes.pt/evento/NP1227312026",
+            "valor": "99 759,58 €"
+          },
+          "ultima_vez_ativo": "2026-07-26T17:16:45+00:00",
+          "visto_em": "2026-07-26T17:15:52+00:00"
+        }
+      }
     },
     "financas": {
       "itens": {}

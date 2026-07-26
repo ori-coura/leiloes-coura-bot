@@ -23,6 +23,7 @@ from comum import (
     HEADERS,
     TIMEOUT,
     ScrapeError,
+    area,
     data_iso,
     euros,
     normalizar,
@@ -112,20 +113,33 @@ def _normalizado(evento, pormenor):
     if evento.get("lanceAtual"):
         extra.append(("Lance atual", euros(evento["lanceAtual"])))
     if pormenor.get("areaTotal"):
-        extra.append(("Área", "%s m²" % pormenor["areaTotal"]))
+        extra.append(("Área", area(pormenor["areaTotal"])))
     if pormenor.get("processoNumero"):
         extra.append(("Processo", pormenor["processoNumero"]))
+
+    latitude = evento.get("coordenadasLAT") or pormenor.get("coordenadasLAT")
+    longitude = evento.get("coordenadasLON") or pormenor.get("coordenadasLON")
 
     return {
         "fonte": NOME,
         "id": referencia,
         "titulo": titulo,
+        "resumo": " · ".join(
+            parte
+            for parte in [
+                subtipo or tipo,
+                area(pormenor.get("areaTotal")),
+                pormenor.get("moradaFreguesia"),
+            ]
+            if parte
+        ),
         "descricao": pormenor.get("descricao") or "",
         "valor": euros(pormenor.get("valorBase") or evento.get("valorBase")),
         "data_fim": data_iso(pormenor.get("dataFim") or evento.get("dataFim")),
         "rotulo_data": "Termina em",
         "local": local,
         "url": EVENTO_URL % referencia,
+        "coordenadas": "%s,%s" % (latitude, longitude) if latitude and longitude else None,
         "extra": extra,
     }
 

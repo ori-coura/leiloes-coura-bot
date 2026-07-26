@@ -50,6 +50,16 @@ def euros(valor):
     return formatado.replace(",", " ").replace(".", ",") + " €"
 
 
+def area(valor):
+    """25.9 -> '25,9 m²'   |   120.0 -> '120 m²'"""
+    try:
+        numero = float(valor)
+    except (TypeError, ValueError):
+        return None
+    texto = ("%g" % numero).replace(".", ",")
+    return "%s m²" % texto
+
+
 def data_iso(texto):
     """'2026-08-05T11:00:00' -> '2026-08-05 11:00'"""
     if not texto:

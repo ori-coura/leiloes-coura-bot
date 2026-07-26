@@ -199,18 +199,24 @@ def main():
     for modulo in modulos:
         itens = modulo.recolher()
         vistos = estado["fontes"][modulo.NOME]["itens"]
+        ativos_agora = set()
+
         for item in itens:
-            if item["id"] not in vistos:
+            ativos_agora.add(item["id"])
+            registo = vistos.get(item["id"])
+            if registo is None:
                 novos.append(item)
-            vistos.setdefault(
-                item["id"],
-                {
-                    "visto_em": agora,
-                    "titulo": item["titulo"],
-                    "url": item["url"],
-                    "data_fim": item["data_fim"],
-                },
-            )
+                registo = {"visto_em": agora}
+                vistos[item["id"]] = registo
+            # O item é reescrito a cada passagem: o lance atual muda todos os dias.
+            registo["item"] = item
+            registo["ultima_vez_ativo"] = agora
+            registo["ativo"] = True
+
+        # O que já cá estava e deixou de aparecer na fonte passa a arquivo.
+        for identificador, registo in vistos.items():
+            if identificador not in ativos_agora:
+                registo["ativo"] = False
 
     if not novos:
         print("Nada de novo.")

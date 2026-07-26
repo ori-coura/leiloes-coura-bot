@@ -37,14 +37,17 @@ jobs:
           EMAIL_TO: ${{ secrets.EMAIL_TO }}
         run: python monitor.py
 
-      - name: Guardar o estado (seen.json)
+      - name: Gerar a página
+        run: python gerar_pagina.py
+
+      - name: Guardar o estado e a página
         run: |
-          if [[ -n "$(git status --porcelain seen.json)" ]]; then
+          if [[ -n "$(git status --porcelain seen.json docs)" ]]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add seen.json
-            git commit -m "Atualizar leilões vistos [skip ci]"
+            git add seen.json docs
+            git commit -m "Atualizar leilões e página [skip ci]"
             git push
           else
-            echo "seen.json sem alterações."
+            echo "Sem alterações."
           fi
