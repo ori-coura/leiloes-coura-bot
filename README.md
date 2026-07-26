@@ -19,7 +19,7 @@ Além do email, o bot gera uma página com tudo o que já apareceu — um cartã
 leilão, com resumo, valores, prazo, link para o anúncio e para o mapa. Os que
 fecham passam para o arquivo, no fundo.
 
-**https://finooutdoor-netizen.github.io/leiloes-coura-bot/**
+**https://ori-coura.github.io/leiloes-coura-bot/**
 
 O `gerar_pagina.py` não vai à internet: lê só o `seen.json` que o `monitor.py`
 gravou. Por isso o estado guarda o item completo e não apenas o ID — os valores
