@@ -2,3 +2,8 @@
 __pycache__/
 *.pyc
 .DS_Store
+
+# segredos locais do email — nunca vai para o GitHub
+.env
+correr.log
+launchd.log
