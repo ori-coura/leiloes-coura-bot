@@ -1,0 +1,50 @@
+name: Monitor leilões Paredes de Coura
+
+on:
+  schedule:
+    # 07:00 UTC = 08:00 em Portugal continental no horário de verão (09:00 seria 08:00 UTC).
+    # No inverno cai às 07:00 locais. O GitHub pode atrasar alguns minutos em horas de ponta.
+    - cron: "0 7 * * *"
+  workflow_dispatch: # permite correr à mão no separador Actions
+
+# Necessário para o bot conseguir fazer commit do seen.json de volta ao repositório.
+permissions:
+  contents: write
+
+concurrency:
+  group: monitor-leiloes
+  cancel-in-progress: false
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obter o repositório
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      - name: Verificar novos leilões
+        env:
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+        run: python monitor.py
+
+      - name: Guardar o estado (seen.json)
+        run: |
+          if [[ -n "$(git status --porcelain seen.json)" ]]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add seen.json
+            git commit -m "Atualizar leilões vistos [skip ci]"
+            git push
+          else
+            echo "seen.json sem alterações."
+          fi
