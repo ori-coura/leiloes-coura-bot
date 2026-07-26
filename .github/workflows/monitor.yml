@@ -32,6 +32,9 @@ jobs:
 
       - name: Verificar novos leilões
         env:
+          # e-leiloes.pt filtra a porta 443 a IPs de datacenter: é inalcançável
+          # daqui. Corre no Mac, onde o IP é português.
+          SALTAR_FONTES: eleiloes
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
           EMAIL_TO: ${{ secrets.EMAIL_TO }}

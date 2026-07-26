@@ -204,6 +204,19 @@ def gerar():
     if arquivo:
         corpo += "<h2>Arquivo</h2>" + "".join(cartao(r) for r in arquivo)
 
+    estados_fonte = []
+    for nome, etiqueta in ETIQUETAS.items():
+        quando = (estado.get("fontes", {}).get(nome) or {}).get("verificado_em")
+        if quando:
+            legivel_fonte, dias = data_pt(quando.replace("T", " ")[:16])
+            if dias is not None and dias <= -2:
+                quando_txt = "%s (há %d dias)" % (legivel_fonte, -dias)
+            else:
+                quando_txt = legivel_fonte
+        else:
+            quando_txt = "ainda não verificada"
+        estados_fonte.append("%s: %s" % (etiqueta, quando_txt))
+
     verificado = estado.get("atualizado_em", "")
     legivel, _ = data_pt(verificado.replace("T", " ")[:16])
 
@@ -222,6 +235,7 @@ def gerar():
   <p class="subtitulo">{n_ativos} · última verificação: {verificado}</p>
   {corpo}
   <footer>
+    <p style="margin:0 0 8px">{estados_fonte}</p>
     Fontes: <a href="https://www.pesquisabenspenhorados.com/leiloes-vendas-financas/">Portal das Finanças</a>,
     <a href="https://www.e-leiloes.pt/">e-leiloes.pt</a> e
     <a href="https://leilosoc.com/pt/category/5-imovel/">Leilosoc</a>.<br>
@@ -237,6 +251,7 @@ def gerar():
         if not ativos
         else ("1 ativo" if len(ativos) == 1 else "%d ativos" % len(ativos)),
         verificado=html.escape(legivel or "?"),
+        estados_fonte=html.escape(" · ".join(estados_fonte)),
         corpo=corpo,
     )
 

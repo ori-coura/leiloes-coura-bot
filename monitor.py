@@ -256,11 +256,24 @@ def main():
             print(json.dumps(item, ensure_ascii=False, indent=2))
         return 0
 
+    # O e-leiloes.pt filtra a porta 443 a IPs estrangeiros/datacenter, por isso é
+    # inalcançável a partir do GitHub Actions (diagnosticado a 26/07/2026: DNS
+    # resolve, TCP 443 não abre). O workflow salta-o com SALTAR_FONTES=eleiloes;
+    # no Mac, com IP português, corre normalmente.
+    saltar = {
+        nome.strip()
+        for nome in os.environ.get("SALTAR_FONTES", "").split(",")
+        if nome.strip()
+    }
+
     modulos = [
         modulo
         for modulo in FONTES
-        if argumentos.fonte is None or modulo.NOME == argumentos.fonte
+        if (argumentos.fonte is None or modulo.NOME == argumentos.fonte)
+        and modulo.NOME not in saltar
     ]
+    for nome in sorted(saltar):
+        print("[%s] saltada (SALTAR_FONTES)" % nome)
 
     estado = ler_estado()
     novos, alterados = [], []
@@ -278,6 +291,8 @@ def main():
             )
             falhas.append((modulo.ETIQUETA, erro))
             continue
+
+        estado["fontes"][modulo.NOME]["verificado_em"] = agora
         vistos = estado["fontes"][modulo.NOME]["itens"]
         ativos_agora = set()
 

@@ -105,6 +105,29 @@ em `monitor.py`.
   agregador `pesquisabenspenhorados.com` já o cobre.
 - **Conservatória do Registo Predial** — penhoras registadas não são vendas.
 
+## Onde cada fonte corre — e porquê
+
+O **e-leiloes.pt filtra a porta 443 a IPs estrangeiros e de datacenter**. Do
+GitHub Actions o DNS resolve (`83.240.188.181`) mas o TCP nunca abre; do Mac, com
+IP português, funciona. Diagnosticado a 26/07/2026, com Leilosoc como controlo.
+
+Por isso:
+
+| Fonte      | GitHub Actions | Mac local |
+| ---------- | -------------- | --------- |
+| Finanças   | sim            | sim       |
+| Leilosoc   | sim            | sim       |
+| e-leiloes  | **não** (`SALTAR_FONTES=eleiloes`) | sim |
+
+Uma fonte em baixo não cala as outras: cada uma é tentada em separado, as boas
+produzem aviso na mesma, e o processo sai com código 2 no fim para o GitHub
+avisar. A página mostra quando cada fonte foi verificada pela última vez, para
+não confundires "não há nada" com "não foi visto".
+
+Rede de segurança recomendada para o e-leiloes: criar conta no site e configurar
+lá um alerta para Paredes de Coura. É push, é grátis, e não pode ser bloqueado
+por IP.
+
 ## Configuração
 
 ### 1. Password de aplicação do Gmail
