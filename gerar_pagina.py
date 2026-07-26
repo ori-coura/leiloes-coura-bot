@@ -16,7 +16,11 @@ RAIZ = os.path.dirname(os.path.abspath(__file__))
 SEEN_FILE = os.path.join(RAIZ, "seen.json")
 SAIDA = os.path.join(RAIZ, "docs", "index.html")
 
-ETIQUETAS = {"financas": "Finanças", "eleiloes": "e-leiloes.pt"}
+ETIQUETAS = {
+    "financas": "Finanças",
+    "eleiloes": "e-leiloes.pt",
+    "leilosoc": "Leilosoc",
+}
 MESES = "jan fev mar abr mai jun jul ago set out nov dez".split()
 
 
@@ -146,6 +150,7 @@ padding:18px;margin-bottom:16px}
 background:var(--linha);color:var(--suave);text-transform:uppercase;letter-spacing:.04em}
 .etiqueta.fonte-eleiloes{background:var(--acento);color:#fff}
 .etiqueta.fonte-financas{background:#5b6470;color:#fff}
+.etiqueta.fonte-leilosoc{background:#0f7a5a;color:#fff}
 .etiqueta.prazo{background:var(--urgente);color:#fff}
 .valores{border-top:1px solid var(--linha);padding-top:10px}
 .linha{display:flex;justify-content:space-between;gap:16px;padding:4px 0;font-size:14px}
@@ -192,7 +197,7 @@ def gerar():
     else:
         corpo = (
             '<div class="vazio"><p><b>Nada em leilão neste momento.</b></p>'
-            "<p>O robô verifica as duas fontes todos os dias. Assim que aparecer "
+            "<p>O robô verifica as três fontes todos os dias. Assim que aparecer "
             "alguma coisa em %s, aparece aqui e recebes email.</p></div>" % CONCELHO
         )
 
@@ -217,8 +222,9 @@ def gerar():
   <p class="subtitulo">{n_ativos} · última verificação: {verificado}</p>
   {corpo}
   <footer>
-    Fontes: <a href="https://www.pesquisabenspenhorados.com/leiloes-vendas-financas/">Portal das Finanças</a>
-    e <a href="https://www.e-leiloes.pt/">e-leiloes.pt</a>.<br>
+    Fontes: <a href="https://www.pesquisabenspenhorados.com/leiloes-vendas-financas/">Portal das Finanças</a>,
+    <a href="https://www.e-leiloes.pt/">e-leiloes.pt</a> e
+    <a href="https://leilosoc.com/pt/category/5-imovel/">Leilosoc</a>.<br>
     Página gerada automaticamente. Confirma sempre os dados no anúncio original.
   </footer>
 </div>

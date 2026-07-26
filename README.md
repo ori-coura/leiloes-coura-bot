@@ -4,12 +4,16 @@ Avisa por email quando aparece um novo leilão, venda ou negócio particular de
 bens penhorados no concelho de **Paredes de Coura**. Objetivo: apanhar casas e
 terrenos antes que passem despercebidos.
 
-Duas fontes, um só email:
+Avisa de **novidades** e também de **alterações** aos leilões que já conhece —
+subida do lance, adiamento da data, corte no valor base.
+
+Três fontes, um só email:
 
 | Fonte                                                                                  | O que cobre                                       | Ficheiro             |
 | -------------------------------------------------------------------------------------- | ------------------------------------------------- | -------------------- |
 | [pesquisabenspenhorados.com](https://www.pesquisabenspenhorados.com/leiloes-vendas-financas/) | vendas das Finanças (agrega o Portal das Finanças) | `fonte_financas.py`  |
 | [e-leiloes.pt](https://www.e-leiloes.pt/)                                                | execuções judiciais (OSAE) — é onde estão os imóveis | `fonte_eleiloes.py`  |
+| [Leilosoc](https://leilosoc.com/pt/category/5-imovel/)                                   | leiloeira privada (execuções, insolvências, banca) | `fonte_leilosoc.py`  |
 
 Cada fonte tem o seu espaço no `seen.json`, para os IDs não colidirem.
 
@@ -69,6 +73,37 @@ casa por estar mal classificada. Para restringir a imóveis, põe
 Estado verificado em 26/07/2026: nas Finanças, Paredes de Coura sem registos; no
 e-leiloes.pt, uma garagem (`LO1493402026`) e uma quota de sociedade
 (`NP1227312026`). Nenhuma casa nem terreno.
+
+## Fonte 3 — Leilosoc
+
+Site em Next.js: os lotes vêm dentro do `<script id="__NEXT_DATA__">` de cada
+página de categoria, em `props.pageProps.lots`. Sem API nem autenticação.
+
+```
+GET /pt/category/5-imovel/?page=N
+```
+
+Filtra-se pelo campo `addressLocation`. Só se segue a categoria **Imóveis**
+(80 lotes, 7 páginas em julho de 2026); as outras nove categorias multiplicariam
+os pedidos por dez sem servir o objetivo. Para as incluir, acrescenta os slugs a
+`CATEGORIAS` em `fonte_leilosoc.py`.
+
+## Alterações
+
+Além de leilões novos, o bot compara cada leilão com a versão guardada e avisa
+quando muda algum destes campos: valor base, data de fecho, lance atual, valor
+mínimo, licitação inicial, modalidade. O resto (descrição reformatada, morada
+corrigida) é ignorado para não gerar ruído — a lista está em `CAMPOS_VIGIADOS`,
+em `monitor.py`.
+
+## Fontes que ficaram de fora, e porquê
+
+- **Citius** — publica anúncios de insolvência filtrados por tribunal, não
+  imóveis com localização e preço. Baixo proveito, e é ASP.NET com `__VIEWSTATE`,
+  caro de manter.
+- **Portal das Finanças direto** — não expõe listagem própria acessível; o
+  agregador `pesquisabenspenhorados.com` já o cobre.
+- **Conservatória do Registo Predial** — penhoras registadas não são vendas.
 
 ## Configuração
 

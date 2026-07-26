@@ -3,9 +3,13 @@
 Avisa por email quando aparece um novo leilão/venda de bens penhorados em
 Paredes de Coura.
 
+Avisa de duas coisas: leilões novos e alterações aos que já conhece
+(sobretudo o lance atual e a data de fecho).
+
 Fontes:
   • Finanças, via pesquisabenspenhorados.com  (fonte_financas.py)
   • e-leiloes.pt, execuções judiciais         (fonte_eleiloes.py)
+  • Leilosoc, leiloeira privada               (fonte_leilosoc.py)
 
 Cada fonte tem o seu espaço próprio no seen.json, para que os IDs não colidam.
 """
@@ -20,9 +24,21 @@ from email.message import EmailMessage
 
 import fonte_eleiloes
 import fonte_financas
+import fonte_leilosoc
 from comum import CONCELHO, TIMEOUT, ScrapeError
 
-FONTES = [fonte_financas, fonte_eleiloes]
+FONTES = [fonte_financas, fonte_eleiloes, fonte_leilosoc]
+
+# Campos cuja mudança vale um aviso. O resto (descrição reformatada, morada
+# corrigida) muda sem consequência prática e só daria ruído.
+CAMPOS_VIGIADOS = [
+    ("valor", "Valor base"),
+    ("data_fim", "Data"),
+    ("Lance atual", "Lance atual"),
+    ("Valor mínimo", "Valor mínimo"),
+    ("Licitação inicial", "Licitação inicial"),
+    ("Modalidade", "Modalidade"),
+]
 SEEN_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "seen.json")
 
 
@@ -83,6 +99,25 @@ def enviar_email(assunto, texto, html):
     return destino
 
 
+def _campos(item):
+    """Achata o item para comparação: campos de topo + os pares de 'extra'."""
+    valores = dict(item.get("extra") or [])
+    valores["valor"] = item.get("valor")
+    valores["data_fim"] = item.get("data_fim")
+    return valores
+
+
+def comparar(antigo, novo):
+    """Devolve [(rótulo, antes, depois)] para os campos vigiados que mudaram."""
+    antes, depois = _campos(antigo), _campos(novo)
+    mudancas = []
+    for chave, rotulo in CAMPOS_VIGIADOS:
+        anterior, atual = antes.get(chave), depois.get(chave)
+        if anterior != atual and (anterior or atual):
+            mudancas.append((rotulo, anterior or "—", atual or "—"))
+    return mudancas
+
+
 def _etiqueta(nome_fonte):
     for modulo in FONTES:
         if modulo.NOME == nome_fonte:
@@ -90,64 +125,99 @@ def _etiqueta(nome_fonte):
     return nome_fonte
 
 
-def compor_email(novos):
-    plural = "s" if len(novos) > 1 else ""
-    assunto = "%d novo%s em %s: %s" % (
-        len(novos),
-        plural,
-        CONCELHO,
-        ", ".join(sorted({item["titulo"].split(" — ")[0] for item in novos}))[:60],
+def _bloco_html(item, mudancas=None):
+    detalhes = "".join(
+        "<b>%s:</b> %s<br>" % (rotulo, valor) for rotulo, valor in item["extra"]
+    )
+    aviso = ""
+    if mudancas:
+        aviso = (
+            '<div style="background:#fff6e0;border-radius:6px;padding:10px;margin:0 0 10px;font-size:14px">'
+            + "".join(
+                "<b>%s:</b> <s>%s</s> &rarr; <b>%s</b><br>" % (rotulo, antes, depois)
+                for rotulo, antes, depois in mudancas
+            )
+            + "</div>"
+        )
+    return """
+        <div style="border:1px solid #ddd;border-radius:6px;padding:14px;margin-bottom:14px">
+          <p style="margin:0 0 6px;color:#888;font-size:12px;text-transform:uppercase">{fonte}</p>
+          <p style="margin:0 0 8px;font-size:16px;font-weight:600">{titulo}</p>
+          {aviso}
+          <p style="margin:0 0 10px;font-size:14px">{descricao}</p>
+          <p style="margin:0;color:#555;font-size:14px">
+            <b>Valor base:</b> {valor}<br>
+            <b>{rotulo_data}:</b> {data_fim}<br>
+            {detalhes}
+            <b>Local:</b> {local}
+          </p>
+          <p style="margin:10px 0 0"><a href="{url}">Ver anúncio &raquo;</a></p>
+        </div>
+        """.format(
+        fonte=_etiqueta(item["fonte"]),
+        titulo=item["titulo"],
+        aviso=aviso,
+        descricao=item["descricao"] or "(sem descrição)",
+        valor=item["valor"],
+        rotulo_data=item["rotulo_data"],
+        data_fim=item["data_fim"],
+        detalhes=detalhes,
+        local=item["local"],
+        url=item["url"],
     )
 
-    linhas = ["Novidades em %s:" % CONCELHO, ""]
-    blocos = []
-    for item in novos:
-        linhas.append("• [%s] %s" % (_etiqueta(item["fonte"]), item["titulo"]))
-        if item["descricao"]:
-            linhas.append("  %s" % item["descricao"][:400])
-        linhas.append("  Valor base: %s" % item["valor"])
-        linhas.append("  %s: %s" % (item["rotulo_data"], item["data_fim"]))
-        for rotulo, valor in item["extra"]:
-            linhas.append("  %s: %s" % (rotulo, valor))
-        linhas.append("  %s" % item["url"])
-        linhas.append("")
 
-        detalhes = "".join(
-            "<b>%s:</b> %s<br>" % (rotulo, valor) for rotulo, valor in item["extra"]
+def _linhas_texto(item, mudancas=None):
+    linhas = ["• [%s] %s" % (_etiqueta(item["fonte"]), item["titulo"])]
+    if mudancas:
+        for rotulo, antes, depois in mudancas:
+            linhas.append("  %s: %s -> %s" % (rotulo, antes, depois))
+    if item["descricao"]:
+        linhas.append("  %s" % item["descricao"][:400])
+    linhas.append("  Valor base: %s" % item["valor"])
+    linhas.append("  %s: %s" % (item["rotulo_data"], item["data_fim"]))
+    for rotulo, valor in item["extra"]:
+        linhas.append("  %s: %s" % (rotulo, valor))
+    linhas.append("  %s" % item["url"])
+    linhas.append("")
+    return linhas
+
+
+def compor_email(novos, alterados):
+    partes = []
+    if novos:
+        partes.append("%d novo%s" % (len(novos), "s" if len(novos) > 1 else ""))
+    if alterados:
+        partes.append(
+            "%d alteraç%s" % (len(alterados), "ões" if len(alterados) > 1 else "ão")
         )
-        blocos.append(
-            """
-            <div style="border:1px solid #ddd;border-radius:6px;padding:14px;margin-bottom:14px">
-              <p style="margin:0 0 6px;color:#888;font-size:12px;text-transform:uppercase">{fonte}</p>
-              <p style="margin:0 0 8px;font-size:16px;font-weight:600">{titulo}</p>
-              <p style="margin:0 0 10px;font-size:14px">{descricao}</p>
-              <p style="margin:0;color:#555;font-size:14px">
-                <b>Valor base:</b> {valor}<br>
-                <b>{rotulo_data}:</b> {data_fim}<br>
-                {detalhes}
-                <b>Local:</b> {local}
-              </p>
-              <p style="margin:10px 0 0"><a href="{url}">Ver anúncio &raquo;</a></p>
-            </div>
-            """.format(
-                fonte=_etiqueta(item["fonte"]),
-                titulo=item["titulo"],
-                descricao=item["descricao"] or "(sem descrição)",
-                valor=item["valor"],
-                rotulo_data=item["rotulo_data"],
-                data_fim=item["data_fim"],
-                detalhes=detalhes,
-                local=item["local"],
-                url=item["url"],
-            )
-        )
+    assunto = "%s em %s" % (" e ".join(partes), CONCELHO)
+
+    linhas, blocos = [], []
+
+    if novos:
+        linhas += ["NOVOS", ""]
+        blocos.append('<h3 style="margin:0 0 10px">Novos</h3>')
+        for item in novos:
+            linhas += _linhas_texto(item)
+            blocos.append(_bloco_html(item))
+
+    if alterados:
+        linhas += ["ALTERAÇÕES", ""]
+        blocos.append('<h3 style="margin:22px 0 10px">Alterações</h3>')
+        for item, mudancas in alterados:
+            linhas += _linhas_texto(item, mudancas)
+            blocos.append(_bloco_html(item, mudancas))
 
     html = """<html><body style="font-family:-apple-system,Segoe UI,Arial,sans-serif">
-      <h2 style="margin:0 0 4px">Novidades em {concelho}</h2>
-      <p style="color:#666;margin:0 0 18px">Fontes: Portal das Finanças e e-leiloes.pt</p>
+      <h2 style="margin:0 0 4px">{assunto}</h2>
+      <p style="color:#666;margin:0 0 18px">
+        Fontes: Portal das Finanças, e-leiloes.pt e Leilosoc ·
+        <a href="https://ori-coura.github.io/leiloes-coura-bot/">ver todos</a>
+      </p>
       {blocos}
     </body></html>""".format(
-        concelho=CONCELHO, blocos="".join(blocos)
+        assunto=assunto, blocos="".join(blocos)
     )
 
     return assunto, "\n".join(linhas), html
@@ -193,7 +263,7 @@ def main():
     ]
 
     estado = ler_estado()
-    novos = []
+    novos, alterados = [], []
     agora = datetime.now(timezone.utc).isoformat(timespec="seconds")
 
     for modulo in modulos:
@@ -208,6 +278,10 @@ def main():
                 novos.append(item)
                 registo = {"visto_em": agora}
                 vistos[item["id"]] = registo
+            elif registo.get("item"):
+                mudancas = comparar(registo["item"], item)
+                if mudancas:
+                    alterados.append((item, mudancas))
             # O item é reescrito a cada passagem: o lance atual muda todos os dias.
             registo["item"] = item
             registo["ultima_vez_ativo"] = agora
@@ -218,7 +292,7 @@ def main():
             if identificador not in ativos_agora:
                 registo["ativo"] = False
 
-    if not novos:
+    if not novos and not alterados:
         print("Nada de novo.")
         if not argumentos.dry_run:
             # Grava mesmo assim: o commit diário mantém o repositório "ativo" e
@@ -226,18 +300,21 @@ def main():
             gravar_estado(estado)
         return 0
 
-    print("%d novidade(s):" % len(novos))
     for item in novos:
-        print("  - [%s] %s | %s" % (item["fonte"], item["id"], item["titulo"][:70]))
+        print("  NOVO      [%s] %s | %s" % (item["fonte"], item["id"], item["titulo"][:60]))
+    for item, mudancas in alterados:
+        print("  ALTERADO  [%s] %s | %s" % (item["fonte"], item["id"], item["titulo"][:60]))
+        for rotulo, antes, depois in mudancas:
+            print("            %s: %s -> %s" % (rotulo, antes, depois))
 
     if argumentos.init:
         print("Modo --init: marcados como vistos, sem email.")
     elif argumentos.dry_run:
-        assunto, texto, _ = compor_email(novos)
+        assunto, texto, _ = compor_email(novos, alterados)
         print("\n--- email que seria enviado ---\n%s\n\n%s" % (assunto, texto))
         return 0
     else:
-        assunto, texto, html = compor_email(novos)
+        assunto, texto, html = compor_email(novos, alterados)
         destino = enviar_email(assunto, texto, html)
         print("Email enviado para %s." % destino)
 
