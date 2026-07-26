@@ -388,7 +388,11 @@ def main():
     url_concelho = procurar_concelho(obter(DISTRITO_URL))
 
     if url_concelho is None:
-        print("%s aparece como texto simples — sem leilões. Nada a fazer." % CONCELHO)
+        print("%s aparece como texto simples — sem leilões." % CONCELHO)
+        if not argumentos.dry_run:
+            # Grava mesmo assim: o commit diário mantém o repositório "ativo" e
+            # impede o GitHub de desativar o agendamento por 60 dias sem atividade.
+            gravar_estado(ler_estado())
         return 0
 
     print("%s está como LINK: %s" % (CONCELHO, url_concelho))
