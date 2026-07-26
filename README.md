@@ -1,12 +1,19 @@
-# Monitor de leilões de bens penhorados — Paredes de Coura
+# Monitor de leilões e penhoras — Paredes de Coura
 
-Avisa por email quando aparece um novo leilão/venda de bens penhorados das Finanças
-no concelho de **Paredes de Coura**.
+Avisa por email quando aparece um novo leilão, venda ou negócio particular de
+bens penhorados no concelho de **Paredes de Coura**. Objetivo: apanhar casas e
+terrenos antes que passem despercebidos.
 
-Fonte: [pesquisabenspenhorados.com](https://www.pesquisabenspenhorados.com/leiloes-vendas-financas/),
-que agrega o Portal das Finanças.
+Duas fontes, um só email:
 
-## Como funciona a deteção
+| Fonte                                                                                  | O que cobre                                       | Ficheiro             |
+| -------------------------------------------------------------------------------------- | ------------------------------------------------- | -------------------- |
+| [pesquisabenspenhorados.com](https://www.pesquisabenspenhorados.com/leiloes-vendas-financas/) | vendas das Finanças (agrega o Portal das Finanças) | `fonte_financas.py`  |
+| [e-leiloes.pt](https://www.e-leiloes.pt/)                                                | execuções judiciais (OSAE) — é onde estão os imóveis | `fonte_eleiloes.py`  |
+
+Cada fonte tem o seu espaço no `seen.json`, para os IDs não colidirem.
+
+## Fonte 1 — Finanças
 
 A [página do distrito de Viana do Castelo](https://www.pesquisabenspenhorados.com/leiloes-vendas-financas/DirectorySearch.aspx?viewType=1&districtId=174)
 lista os 10 concelhos:
@@ -14,21 +21,42 @@ lista os 10 concelhos:
 - concelho **sem** registos → texto simples: `<li>Paredes De Coura</li>`
 - concelho **com** registos → link: `<li><a href="...viewType=3&municipalityId=XXXX">…</a></li>`
 
-O script procura "Paredes De Coura" nessa lista (comparação sem acentos e sem
-maiúsculas). Se for texto simples, termina sem fazer nada. Se for link, segue-o.
+O script procura "Paredes De Coura" nessa lista (sem acentos, sem maiúsculas). Se
+for texto simples, não há nada. Se for link, segue-o.
 
 **O `municipalityId` nunca é fixo nem adivinhado** — é sempre lido do link. O site
-ignora IDs inválidos e devolve outro concelho, por isso o script ainda confirma que
-o `<h1>` da página de destino diz mesmo "Paredes De Coura" antes de avisar seja do
-que for.
+ignora IDs inválidos e devolve outro concelho, por isso confirma-se ainda que o
+`<h1>` da página de destino diz mesmo "Paredes De Coura".
 
-Cada item é identificado por `sf.ano.idVenda` (extraído do link
-`detalheVenda.action?idVenda=1&sf=2321&ano=2023`), que corresponde ao "N.º Leilão
-Finanças" mostrado no site. Os IDs já avisados ficam em `seen.json`, para não
-receberes o mesmo leilão duas vezes.
+Cada item é identificado por `sf.ano.idVenda` (do link `detalheVenda.action`), que
+corresponde ao "N.º Leilão Finanças" mostrado no site. A paginação é `&page=N`, 10
+por página, e devolve **404** para páginas além da última.
 
-Estado verificado em 26/07/2026: Paredes de Coura aparece como texto simples
-(sem registos). Ponte de Lima e Viana do Castelo estão como link.
+## Fonte 2 — e-leiloes.pt
+
+SPA em Vue com uma API JSON pública, sem autenticação:
+
+```
+GET /api/EventosMapa/?tableParams={"first":0,"rows":12,"filters":{}}
+GET /api/Eventos/<referencia>/
+```
+
+O primeiro devolve **todos os eventos do país numa só resposta** (3175 em julho de
+2026) e filtra-se `moradaConcelho` localmente. O `/api/Eventos/?tableParams=…`
+existe mas pagina a 12 e ignora os filtros no formato óbvio, por isso não se usa.
+
+Atenção: aqui o concelho escreve-se "Paredes **de** Coura" (minúsculo), ao
+contrário do agregador das Finanças. A comparação é feita sem acentos nem
+maiúsculas, por isso tanto faz.
+
+Por omissão avisa de **tudo** o que houver no concelho — não só imóveis. O volume
+é baixíssimo (2 eventos em julho de 2026) e mais vale ver a mais do que perder uma
+casa por estar mal classificada. Para restringir a imóveis, põe
+`SO_IMOVEIS = True` em `fonte_eleiloes.py`.
+
+Estado verificado em 26/07/2026: nas Finanças, Paredes de Coura sem registos; no
+e-leiloes.pt, uma garagem (`LO1493402026`) e uma quota de sociedade
+(`NP1227312026`). Nenhuma casa nem terreno.
 
 ## Configuração
 
@@ -62,11 +90,12 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 
 Opções:
 
-| Opção         | O que faz                                                            |
-| ------------- | -------------------------------------------------------------------- |
-| `--dry-run`   | mostra o email que enviaria, sem enviar nem gravar `seen.json`        |
-| `--init`      | marca tudo o que existe agora como visto, sem enviar email            |
-| `--url <URL>` | testa o parser contra a listagem de outro concelho (salta a deteção)  |
+| Opção              | O que faz                                                            |
+| ------------------ | -------------------------------------------------------------------- |
+| `--dry-run`        | mostra o email que enviaria, sem enviar nem gravar `seen.json`        |
+| `--init`           | marca tudo o que existe agora como visto, sem enviar email            |
+| `--fonte <nome>`   | corre só `financas` ou só `eleiloes`                                  |
+| `--url <URL>`      | testa o parser das Finanças contra a listagem de outro concelho       |
 
 Para enviar mesmo a partir do computador:
 
@@ -74,15 +103,20 @@ Para enviar mesmo a partir do computador:
 EMAIL_USER=... EMAIL_PASS=... EMAIL_TO=... .venv/bin/python monitor.py
 ```
 
-## Se o site mudar
+## Se alguma fonte mudar
 
 O script sai com código 2 e a mensagem `ERRO DE SCRAPING: …` quando a estrutura
-deixa de bater certo (bloco de concelhos não encontrado, concelho ausente da lista,
-o site anuncia N registos mas não se extrai nenhum, ou o link leva a outro concelho).
-Nesse caso o workflow falha e o GitHub avisa por email — é sinal de rever os
-seletores em `monitor.py`, não de que não há leilões.
+deixa de bater certo: bloco de concelhos não encontrado, concelho ausente da lista,
+o site anuncia N registos mas não se extrai nenhum, o link leva a outro concelho,
+ou o `EventosMapa` passa a paginar (detetado por vir menos de 20 concelhos
+distintos). Nesse caso o workflow falha e o GitHub avisa por email — é sinal de
+rever o código, não de que não há leilões.
 
-## Fora do âmbito (por opção)
+## Alternativa sem código
 
-- e-leiloes.pt (leilões eletrónicos de execuções judiciais)
-- penhoras registadas na Conservatória
+O e-leiloes.pt tem alertas nativos por email para utilizadores registados. Não
+dispensa este bot (não cobre as Finanças), mas serve de rede de segurança.
+
+## Fora do âmbito
+
+- penhoras registadas na Conservatória do Registo Predial
