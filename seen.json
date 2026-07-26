@@ -1,5 +1,5 @@
 {
-  "atualizado_em": "2026-07-26T18:21:03+00:00",
+  "atualizado_em": "2026-07-26T18:21:52+00:00",
   "fontes": {
     "eleiloes": {
       "itens": {
@@ -44,7 +44,7 @@
             "url": "https://www.e-leiloes.pt/evento/LO1493402026",
             "valor": "10 000,00 €"
           },
-          "ultima_vez_ativo": "2026-07-26T18:20:57+00:00",
+          "ultima_vez_ativo": "2026-07-26T18:21:50+00:00",
           "visto_em": "2026-07-26T17:15:52+00:00"
         },
         "NP1227312026": {
@@ -80,19 +80,19 @@
             "url": "https://www.e-leiloes.pt/evento/NP1227312026",
             "valor": "99 759,58 €"
           },
-          "ultima_vez_ativo": "2026-07-26T18:20:57+00:00",
+          "ultima_vez_ativo": "2026-07-26T18:21:50+00:00",
           "visto_em": "2026-07-26T17:15:52+00:00"
         }
       },
-      "verificado_em": "2026-07-26T18:20:57+00:00"
+      "verificado_em": "2026-07-26T18:21:50+00:00"
     },
     "financas": {
       "itens": {},
-      "verificado_em": "2026-07-26T18:20:57+00:00"
+      "verificado_em": "2026-07-26T18:21:50+00:00"
     },
     "leilosoc": {
       "itens": {},
-      "verificado_em": "2026-07-26T18:20:57+00:00"
+      "verificado_em": "2026-07-26T18:21:50+00:00"
     }
   }
 }
