@@ -56,6 +56,8 @@ def area(valor):
         numero = float(valor)
     except (TypeError, ValueError):
         return None
+    if not numero:
+        return None  # área 0 significa "não aplicável" (quotas, direitos, veículos)
     texto = ("%g" % numero).replace(".", ",")
     return "%s m²" % texto
 

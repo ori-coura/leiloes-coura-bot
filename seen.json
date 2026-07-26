@@ -1,5 +1,5 @@
 {
-  "atualizado_em": "2026-07-26T17:16:47+00:00",
+  "atualizado_em": "2026-07-26T17:18:11+00:00",
   "fontes": {
     "eleiloes": {
       "itens": {
@@ -44,7 +44,7 @@
             "url": "https://www.e-leiloes.pt/evento/LO1493402026",
             "valor": "10 000,00 €"
           },
-          "ultima_vez_ativo": "2026-07-26T17:16:45+00:00",
+          "ultima_vez_ativo": "2026-07-26T17:18:10+00:00",
           "visto_em": "2026-07-26T17:15:52+00:00"
         },
         "NP1227312026": {
@@ -74,13 +74,13 @@
             "fonte": "eleiloes",
             "id": "NP1227312026",
             "local": "Rua Doutor Afonso Viana 60, União das freguesias de Paredes de Coura e Resende, Paredes de Coura",
-            "resumo": "Quotas · 0 m² · União das freguesias de Paredes de Coura e Resende",
+            "resumo": "Quotas · União das freguesias de Paredes de Coura e Resende",
             "rotulo_data": "Termina em",
             "titulo": "Quotas — Quota",
             "url": "https://www.e-leiloes.pt/evento/NP1227312026",
             "valor": "99 759,58 €"
           },
-          "ultima_vez_ativo": "2026-07-26T17:16:45+00:00",
+          "ultima_vez_ativo": "2026-07-26T17:18:10+00:00",
           "visto_em": "2026-07-26T17:15:52+00:00"
         }
       }
