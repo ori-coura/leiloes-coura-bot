@@ -77,9 +77,11 @@ def gravar_estado(estado):
 
 
 def enviar_email(assunto, texto, html):
-    utilizador = os.environ.get("EMAIL_USER")
-    palavra_passe = os.environ.get("EMAIL_PASS")
-    destino = os.environ.get("EMAIL_TO") or utilizador
+    utilizador = (os.environ.get("EMAIL_USER") or "").strip()
+    # O Google mostra a password de aplicação em 4 blocos ("abcd efgh ijkl mnop"),
+    # mas o SMTP recusa-a com espaços. Tirar os espaços evita esse engano.
+    palavra_passe = (os.environ.get("EMAIL_PASS") or "").replace(" ", "").strip()
+    destino = (os.environ.get("EMAIL_TO") or utilizador).strip()
 
     if not (utilizador and palavra_passe and destino):
         raise RuntimeError(
