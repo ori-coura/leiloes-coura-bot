@@ -191,6 +191,37 @@ Para enviar mesmo a partir do computador:
 EMAIL_USER=... EMAIL_PASS=... EMAIL_TO=... .venv/bin/python monitor.py
 ```
 
+## Automático no Mac (as três fontes)
+
+O GitHub Actions cobre Finanças e Leilosoc. Para o e-leiloes.pt entrar também,
+o `correr.sh` corre localmente as três, gera a página e publica. É chamado pelo
+launchd todos os dias às 09:15 — se o Mac estiver desligado a essa hora, corre
+assim que acordar.
+
+```
+~/Library/LaunchAgents/pt.coura.leiloes.plist
+```
+
+Comandos úteis:
+
+```bash
+./correr.sh                                              # correr à mão
+tail -20 correr.log                                      # ver o que fez
+launchctl list | grep leiloes                            # confirmar que está ativo
+launchctl unload ~/Library/LaunchAgents/pt.coura.leiloes.plist   # desligar
+```
+
+Os segredos do email ficam em `.env`, na raiz do projeto, fora do git:
+
+```
+EMAIL_USER=...
+EMAIL_TO=...
+EMAIL_PASS=<password de aplicação, 16 caracteres>
+```
+
+Sem `EMAIL_PASS` preenchida, as execuções locais atualizam a página na mesma mas
+rebentam quando houver algo para enviar.
+
 ## Se alguma fonte mudar
 
 O script sai com código 2 e a mensagem `ERRO DE SCRAPING: …` quando a estrutura
