@@ -6,6 +6,11 @@ on:
     # No inverno cai às 07:00 locais. O GitHub pode atrasar alguns minutos em horas de ponta.
     - cron: "0 7 * * *"
   workflow_dispatch: # permite correr à mão no separador Actions
+    inputs:
+      testar_email:
+        description: "Enviar só um email de teste, sem verificar os sites"
+        type: boolean
+        default: false
 
 # Necessário para o bot conseguir fazer commit do seen.json de volta ao repositório.
 permissions:
@@ -38,12 +43,19 @@ jobs:
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
           EMAIL_TO: ${{ secrets.EMAIL_TO }}
-        run: python monitor.py
+        run: |
+          if [[ "${{ inputs.testar_email }}" == "true" ]]; then
+            python monitor.py --testar-email
+          else
+            python monitor.py
+          fi
 
       - name: Gerar a página
+        if: ${{ inputs.testar_email != true }}
         run: python gerar_pagina.py
 
       - name: Guardar o estado e a página
+        if: ${{ inputs.testar_email != true }}
         run: |
           if [[ -n "$(git status --porcelain seen.json docs)" ]]; then
             git config user.name "github-actions[bot]"

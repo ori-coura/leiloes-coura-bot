@@ -239,6 +239,11 @@ def main():
         help="marca tudo o que existe agora como visto, sem enviar email",
     )
     analisador.add_argument(
+        "--testar-email",
+        action="store_true",
+        help="envia um email de teste e termina (para validar os secrets)",
+    )
+    analisador.add_argument(
         "--fonte",
         choices=[modulo.NOME for modulo in FONTES],
         help="correr só uma das fontes",
@@ -248,6 +253,24 @@ def main():
         help="testar o parser das Finanças contra a listagem de outro concelho",
     )
     argumentos = analisador.parse_args()
+
+    if argumentos.testar_email:
+        destino = enviar_email(
+            "Teste do monitor de leilões de %s" % CONCELHO,
+            "Se estás a ler isto, o envio por Gmail está a funcionar.\n\n"
+            "A partir de agora só recebes email quando houver mesmo novidades ou\n"
+            "alterações. A página com tudo está em\n"
+            "https://ori-coura.github.io/leiloes-coura-bot/\n",
+            '<html><body style="font-family:-apple-system,Segoe UI,Arial,sans-serif">'
+            "<h2>Teste do monitor de leilões</h2>"
+            "<p>Se estás a ler isto, o envio por Gmail está a funcionar.</p>"
+            "<p>A partir de agora só recebes email quando houver mesmo novidades ou "
+            "alterações. A página com tudo está em "
+            '<a href="https://ori-coura.github.io/leiloes-coura-bot/">'
+            "ori-coura.github.io/leiloes-coura-bot</a>.</p></body></html>",
+        )
+        print("Email de teste enviado para %s." % destino)
+        return 0
 
     if argumentos.url:
         itens, total = fonte_financas.listar_todos(argumentos.url, validar_titulo=False)
