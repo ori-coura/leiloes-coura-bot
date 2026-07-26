@@ -1,0 +1,19 @@
+name: Diagnóstico e-leiloes
+on: [workflow_dispatch]
+jobs:
+  testar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolver e ligar
+        run: |
+          echo "== DNS =="
+          getent hosts www.e-leiloes.pt || echo "sem resolucao www"
+          getent hosts e-leiloes.pt || echo "sem resolucao apex"
+          echo "== curl www (IPv4) =="
+          curl -4 -sS -o /dev/null -w "HTTP %{http_code} em %{time_total}s\n" --max-time 25 https://www.e-leiloes.pt/api/ParamDistritos/ || echo "FALHOU www ipv4"
+          echo "== curl apex (IPv4) =="
+          curl -4 -sS -o /dev/null -w "HTTP %{http_code} em %{time_total}s\n" --max-time 25 https://e-leiloes.pt/api/ParamDistritos/ || echo "FALHOU apex ipv4"
+          echo "== porta 443 =="
+          timeout 12 bash -c 'cat < /dev/null > /dev/tcp/www.e-leiloes.pt/443' && echo "TCP 443 aberto" || echo "TCP 443 fechado/filtrado"
+          echo "== controlo: leilosoc =="
+          curl -4 -sS -o /dev/null -w "HTTP %{http_code}\n" --max-time 25 https://leilosoc.com/pt/ || echo "FALHOU leilosoc"
