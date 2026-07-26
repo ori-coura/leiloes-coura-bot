@@ -257,6 +257,17 @@ def main():
     argumentos = analisador.parse_args()
 
     if argumentos.testar_email:
+        # Diagnóstico sem expor segredos: o GitHub mascara os valores no log,
+        # mas o comprimento chega para distinguir "colado mal" de "conta errada".
+        print(
+            "EMAIL_USER com %d caracteres, EMAIL_PASS com %d (esperados 16), "
+            "EMAIL_TO com %d."
+            % (
+                len((os.environ.get("EMAIL_USER") or "").strip()),
+                len((os.environ.get("EMAIL_PASS") or "").replace(" ", "").strip()),
+                len((os.environ.get("EMAIL_TO") or "").strip()),
+            )
+        )
         destino = enviar_email(
             "Teste do monitor de leilões de %s" % CONCELHO,
             "Se estás a ler isto, o envio por Gmail está a funcionar.\n\n"
