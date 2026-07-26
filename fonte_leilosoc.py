@@ -14,12 +14,10 @@ quiseres tudo, acrescenta os slugs a CATEGORIAS.
 import json
 import re
 
-import requests
-
 from comum import (
     CONCELHO,
-    HEADERS,
     TIMEOUT,
+    SESSAO,
     ScrapeError,
     area,
     data_iso,
@@ -38,7 +36,7 @@ MAX_PAGINAS = 30  # travão de segurança
 
 def _pagina(slug, numero):
     url = "%s/pt/category/%s/?page=%d" % (BASE, slug, numero)
-    resposta = requests.get(url, headers=HEADERS, timeout=TIMEOUT)
+    resposta = SESSAO.get(url, timeout=TIMEOUT)
     resposta.raise_for_status()
     resposta.encoding = "utf-8"
 

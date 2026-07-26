@@ -4,8 +4,10 @@ import re
 import unicodedata
 
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
-TIMEOUT = 30
+TIMEOUT = 45
 
 HEADERS = {
     "User-Agent": (
@@ -20,6 +22,28 @@ CONCELHO = "Paredes de Coura"
 
 class ScrapeError(RuntimeError):
     """A estrutura da fonte mudou — é preciso rever o código."""
+
+
+def sessao():
+    """
+    Sessão com repetições. Os runners do GitHub Actions saem por IPs de
+    datacenter e alguns destes sites são lentos ou recusam a primeira ligação.
+    """
+    s = requests.Session()
+    politica = Retry(
+        total=4,
+        backoff_factor=3,  # 0s, 3s, 6s, 12s
+        status_forcelist=[429, 500, 502, 503, 504],
+        allowed_methods=["GET"],
+    )
+    adaptador = HTTPAdapter(max_retries=politica)
+    s.mount("https://", adaptador)
+    s.mount("http://", adaptador)
+    s.headers.update(HEADERS)
+    return s
+
+
+SESSAO = sessao()
 
 
 def normalizar(texto):

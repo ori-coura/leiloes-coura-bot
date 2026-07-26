@@ -16,12 +16,10 @@ no formato óbvio, por isso usa-se o endpoint do mapa e filtra-se aqui.
 import json
 from urllib.parse import quote
 
-import requests
-
 from comum import (
     CONCELHO,
-    HEADERS,
     TIMEOUT,
+    SESSAO,
     ScrapeError,
     area,
     data_iso,
@@ -45,7 +43,7 @@ MODALIDADES = {1: "Leilão online", 2: "Negócio particular"}
 
 
 def obter_json(url):
-    resposta = requests.get(url, headers=HEADERS, timeout=TIMEOUT)
+    resposta = SESSAO.get(url, timeout=TIMEOUT)
     resposta.raise_for_status()
     try:
         return resposta.json()

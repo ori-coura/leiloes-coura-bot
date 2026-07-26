@@ -266,8 +266,18 @@ def main():
     novos, alterados = [], []
     agora = datetime.now(timezone.utc).isoformat(timespec="seconds")
 
+    falhas = []
     for modulo in modulos:
-        itens = modulo.recolher()
+        try:
+            itens = modulo.recolher()
+        except Exception as erro:
+            # Uma fonte em baixo não pode calar as outras: regista-se e segue-se.
+            print(
+                "[%s] FALHOU: %s: %s" % (modulo.ETIQUETA, type(erro).__name__, erro),
+                file=sys.stderr,
+            )
+            falhas.append((modulo.ETIQUETA, erro))
+            continue
         vistos = estado["fontes"][modulo.NOME]["itens"]
         ativos_agora = set()
 
@@ -294,6 +304,14 @@ def main():
 
     if not novos and not alterados:
         print("Nada de novo.")
+        if falhas:
+            if not argumentos.dry_run:
+                gravar_estado(estado)
+            print(
+                "Fonte(s) em falha: %s" % ", ".join(e for e, _ in falhas),
+                file=sys.stderr,
+            )
+            return 2
         if not argumentos.dry_run:
             # Grava mesmo assim: o commit diário mantém o repositório "ativo" e
             # impede o GitHub de desativar o agendamento por 60 dias sem atividade.
@@ -319,6 +337,13 @@ def main():
         print("Email enviado para %s." % destino)
 
     gravar_estado(estado)
+    if falhas:
+        print(
+            "Terminado com %d fonte(s) em falha: %s"
+            % (len(falhas), ", ".join(e for e, _ in falhas)),
+            file=sys.stderr,
+        )
+        return 2
     return 0
 
 

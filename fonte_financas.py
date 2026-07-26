@@ -15,13 +15,13 @@ que o <h1> da página de destino é mesmo o concelho certo.
 import re
 from urllib.parse import parse_qs, urljoin, urlparse
 
-import requests
+
 from bs4 import BeautifulSoup
 
 from comum import (
     CONCELHO,
-    HEADERS,
     TIMEOUT,
+    SESSAO,
     ScrapeError,
     chave,
     normalizar,
@@ -44,7 +44,7 @@ CAMPOS = {
 
 
 def obter(url, tolerar_404=False):
-    resposta = requests.get(url, headers=HEADERS, timeout=TIMEOUT)
+    resposta = SESSAO.get(url, timeout=TIMEOUT)
     if tolerar_404 and resposta.status_code == 404:
         return None  # página além da última: o site devolve 404, não uma lista vazia
     resposta.raise_for_status()
