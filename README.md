@@ -13,6 +13,18 @@ Duas fontes, um só email:
 
 Cada fonte tem o seu espaço no `seen.json`, para os IDs não colidirem.
 
+## A página
+
+Além do email, o bot gera uma página com tudo o que já apareceu — um cartão por
+leilão, com resumo, valores, prazo, link para o anúncio e para o mapa. Os que
+fecham passam para o arquivo, no fundo.
+
+**https://finooutdoor-netizen.github.io/leiloes-coura-bot/**
+
+O `gerar_pagina.py` não vai à internet: lê só o `seen.json` que o `monitor.py`
+gravou. Por isso o estado guarda o item completo e não apenas o ID — os valores
+(sobretudo o lance atual) mudam de dia para dia.
+
 ## Fonte 1 — Finanças
 
 A [página do distrito de Viana do Castelo](https://www.pesquisabenspenhorados.com/leiloes-vendas-financas/DirectorySearch.aspx?viewType=1&districtId=174)
@@ -96,6 +108,12 @@ Opções:
 | `--init`           | marca tudo o que existe agora como visto, sem enviar email            |
 | `--fonte <nome>`   | corre só `financas` ou só `eleiloes`                                  |
 | `--url <URL>`      | testa o parser das Finanças contra a listagem de outro concelho       |
+
+Para reconstruir a página a partir do estado já guardado:
+
+```bash
+.venv/bin/python gerar_pagina.py
+```
 
 Para enviar mesmo a partir do computador:
 
