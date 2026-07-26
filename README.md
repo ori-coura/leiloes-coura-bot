@@ -146,7 +146,19 @@ Em **Settings → Secrets and variables → Actions → New repository secret**:
 | `EMAIL_PASS` | a password de aplicação de 16 caracteres |
 | `EMAIL_TO`   | o endereço que recebe os avisos          |
 
-### 3. Correr
+### 3. Testar o email
+
+Como Paredes de Coura passa meses sem nada, uma execução normal não envia email
+e não prova que os secrets estão certos. Para testar: **Actions → Run workflow →
+marcar "Enviar só um email de teste"**. O log mostra o comprimento de cada secret
+antes de tentar — a password de aplicação tem de dar **16**. Se der outro número,
+foi mal copiada.
+
+Erros já apanhados aqui: password colada com um carácter a mais (17), e o mito de
+que o Gmail aceita a password com os espaços dos blocos — não aceita, mas o código
+tira-os agora.
+
+### 4. Correr
 
 O workflow corre sozinho uma vez por dia (07:00 UTC). Para testar à mão:
 **Actions → Monitor leilões Paredes de Coura → Run workflow**.
