@@ -13,13 +13,8 @@ REGISTO="$RAIZ/correr.log"
 exec >> "$REGISTO" 2>&1
 echo "===== $(date '+%Y-%m-%d %H:%M:%S') ====="
 
-# Segredos do email, fora do repositório e fora do git.
-if [[ -f "$RAIZ/.env" ]]; then
-  set -a
-  # shellcheck disable=SC1091
-  source "$RAIZ/.env"
-  set +a
-fi
+# Os segredos do email vivem em .env e são lidos pelo próprio monitor.py
+# (o shell não os consegue ler: a password do Google tem espaços).
 
 "$RAIZ/.venv/bin/python" monitor.py
 CODIGO=$?

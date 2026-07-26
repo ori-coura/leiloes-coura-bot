@@ -39,7 +39,29 @@ CAMPOS_VIGIADOS = [
     ("Licitação inicial", "Licitação inicial"),
     ("Modalidade", "Modalidade"),
 ]
-SEEN_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "seen.json")
+RAIZ = os.path.dirname(os.path.abspath(__file__))
+SEEN_FILE = os.path.join(RAIZ, "seen.json")
+ENV_FILE = os.path.join(RAIZ, ".env")
+
+
+def carregar_env():
+    """
+    Lê o .env local (fora do git) para as execuções no Mac. No GitHub Actions
+    este ficheiro não existe e os valores vêm dos secrets.
+
+    É feito aqui, e não com 'source' no shell, porque a password de aplicação do
+    Google tem espaços e o shell tentava executar o segundo bloco como comando.
+    """
+    if not os.path.exists(ENV_FILE):
+        return
+    with open(ENV_FILE, encoding="utf-8") as ficheiro:
+        for linha in ficheiro:
+            linha = linha.strip()
+            if not linha or linha.startswith("#") or "=" not in linha:
+                continue
+            chave, valor = linha.split("=", 1)
+            # O ambiente manda: assim o CI nunca é sobreposto por um .env.
+            os.environ.setdefault(chave.strip(), valor.strip().strip('"').strip("'"))
 
 
 # --- Estado -----------------------------------------------------------------
@@ -229,6 +251,7 @@ def compor_email(novos, alterados):
 
 
 def main():
+    carregar_env()
     analisador = argparse.ArgumentParser(description=__doc__)
     analisador.add_argument(
         "--dry-run",
