@@ -16,6 +16,22 @@ echo "===== $(date '+%Y-%m-%d %H:%M:%S') ====="
 # Os segredos do email vivem em .env e são lidos pelo próprio monitor.py
 # (o shell não os consegue ler: a password do Google tem espaços).
 
+# Partir sempre do que está publicado: o GitHub Actions também escreve o
+# seen.json e a página, e trabalhar sobre uma cópia velha dá conflitos.
+git rebase --abort 2>/dev/null
+if git fetch --quiet origin main; then
+  # Só se pode descartar o local quando o que está por commitar são os
+  # ficheiros gerados. Havendo código por commitar, não se toca em nada.
+  SUJOS="$(git status --porcelain | awk '{print $2}' | grep -v -E '^(seen\.json|docs/)' || true)"
+  if [[ -z "$SUJOS" ]]; then
+    git reset --hard --quiet origin/main
+  else
+    echo "AVISO: há ficheiros por commitar ($SUJOS); não sincronizo à força"
+  fi
+else
+  echo "AVISO: não consegui contactar o remoto, sigo com o que tenho"
+fi
+
 "$RAIZ/.venv/bin/python" monitor.py
 CODIGO=$?
 
@@ -26,9 +42,21 @@ if [[ -n "$(git status --porcelain seen.json docs)" ]]; then
   # O --autostash evita que outros ficheiros por commitar travem o rebase.
   git add seen.json docs
   git commit --quiet -m "Atualizar leilões e página (Mac) [skip ci]"
-  git pull --rebase --autostash --quiet origin main \
-    || echo "AVISO: git pull falhou, tento o push na mesma"
-  git push --quiet origin main && echo "publicado" || echo "ERRO: push falhou"
+
+  if git push --quiet origin main 2>/dev/null; then
+    echo "publicado"
+  else
+    # Corrida com o GitHub Actions: em ficheiros gerados fica a nossa versão,
+    # que é a mais completa (é a única que traz o e-leiloes).
+    echo "push rejeitado, a reconciliar..."
+    if git pull --rebase -X ours --autostash --quiet origin main \
+       && git push --quiet origin main; then
+      echo "publicado à segunda"
+    else
+      git rebase --abort 2>/dev/null
+      echo "ERRO: não consegui publicar; fica para a próxima execução"
+    fi
+  fi
 else
   echo "sem alterações a publicar"
 fi
