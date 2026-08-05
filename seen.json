@@ -1,10 +1,10 @@
 {
-  "atualizado_em": "2026-08-05T09:37:49+00:00",
+  "atualizado_em": "2026-08-05T15:23:15+00:00",
   "fontes": {
     "eleiloes": {
       "itens": {
         "LO1493402026": {
-          "ativo": true,
+          "ativo": false,
           "item": {
             "coordenadas": "41.91179541,-8.56417074",
             "data_fim": "2026-08-05 11:00",
@@ -80,19 +80,19 @@
             "url": "https://www.e-leiloes.pt/evento/NP1227312026",
             "valor": "99 759,58 €"
           },
-          "ultima_vez_ativo": "2026-08-04T15:42:15+00:00",
+          "ultima_vez_ativo": "2026-08-05T15:23:10+00:00",
           "visto_em": "2026-07-26T17:15:52+00:00"
         }
       },
-      "verificado_em": "2026-08-04T15:42:15+00:00"
+      "verificado_em": "2026-08-05T15:23:10+00:00"
     },
     "financas": {
       "itens": {},
-      "verificado_em": "2026-08-05T09:37:40+00:00"
+      "verificado_em": "2026-08-05T15:23:10+00:00"
     },
     "leilosoc": {
       "itens": {},
-      "verificado_em": "2026-08-05T09:37:40+00:00"
+      "verificado_em": "2026-08-05T15:23:10+00:00"
     }
   }
 }
