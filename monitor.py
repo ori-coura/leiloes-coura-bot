@@ -10,6 +10,7 @@ Fontes:
   • Finanças, via pesquisabenspenhorados.com  (fonte_financas.py)
   • e-leiloes.pt, execuções judiciais         (fonte_eleiloes.py)
   • Leilosoc, leiloeira privada               (fonte_leilosoc.py)
+  • Citius, registo oficial das vendas        (fonte_citius.py)
 
 Cada fonte tem o seu espaço próprio no seen.json, para que os IDs não colidam.
 """
@@ -22,12 +23,13 @@ import sys
 from datetime import datetime, timezone
 from email.message import EmailMessage
 
+import fonte_citius
 import fonte_eleiloes
 import fonte_financas
 import fonte_leilosoc
 from comum import CONCELHO, TIMEOUT, ScrapeError
 
-FONTES = [fonte_financas, fonte_eleiloes, fonte_leilosoc]
+FONTES = [fonte_financas, fonte_eleiloes, fonte_leilosoc, fonte_citius]
 
 # Campos cuja mudança vale um aviso. O resto (descrição reformatada, morada
 # corrigida) muda sem consequência prática e só daria ruído.
@@ -38,6 +40,7 @@ CAMPOS_VIGIADOS = [
     ("Valor mínimo", "Valor mínimo"),
     ("Licitação inicial", "Licitação inicial"),
     ("Modalidade", "Modalidade"),
+    ("Estado", "Estado"),
 ]
 RAIZ = os.path.dirname(os.path.abspath(__file__))
 SEEN_FILE = os.path.join(RAIZ, "seen.json")
@@ -236,7 +239,7 @@ def compor_email(novos, alterados):
     html = """<html><body style="font-family:-apple-system,Segoe UI,Arial,sans-serif">
       <h2 style="margin:0 0 4px">{assunto}</h2>
       <p style="color:#666;margin:0 0 18px">
-        Fontes: Portal das Finanças, e-leiloes.pt e Leilosoc ·
+        Fontes: Portal das Finanças, e-leiloes.pt, Leilosoc e Citius ·
         <a href="https://ori-coura.github.io/leiloes-coura-bot/">ver todos</a>
       </p>
       {blocos}

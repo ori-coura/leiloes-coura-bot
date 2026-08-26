@@ -20,6 +20,7 @@ ETIQUETAS = {
     "financas": "Finanças",
     "eleiloes": "e-leiloes.pt",
     "leilosoc": "Leilosoc",
+    "citius": "Citius",
 }
 MESES = "jan fev mar abr mai jun jul ago set out nov dez".split()
 
@@ -151,6 +152,7 @@ background:var(--linha);color:var(--suave);text-transform:uppercase;letter-spaci
 .etiqueta.fonte-eleiloes{background:var(--acento);color:#fff}
 .etiqueta.fonte-financas{background:#5b6470;color:#fff}
 .etiqueta.fonte-leilosoc{background:#0f7a5a;color:#fff}
+.etiqueta.fonte-citius{background:#7a3e9d;color:#fff}
 .etiqueta.prazo{background:var(--urgente);color:#fff}
 .valores{border-top:1px solid var(--linha);padding-top:10px}
 .linha{display:flex;justify-content:space-between;gap:16px;padding:4px 0;font-size:14px}
@@ -197,7 +199,7 @@ def gerar():
     else:
         corpo = (
             '<div class="vazio"><p><b>Nada em leilão neste momento.</b></p>'
-            "<p>O robô verifica as três fontes todos os dias. Assim que aparecer "
+            "<p>O robô verifica as quatro fontes todos os dias. Assim que aparecer "
             "alguma coisa em %s, aparece aqui e recebes email.</p></div>" % CONCELHO
         )
 
@@ -238,7 +240,8 @@ def gerar():
     <p style="margin:0 0 8px">{estados_fonte}</p>
     Fontes: <a href="https://www.pesquisabenspenhorados.com/leiloes-vendas-financas/">Portal das Finanças</a>,
     <a href="https://www.e-leiloes.pt/">e-leiloes.pt</a> e
-    <a href="https://leilosoc.com/pt/category/5-imovel/">Leilosoc</a>.<br>
+    <a href="https://leilosoc.com/pt/category/5-imovel/">Leilosoc</a> e
+    <a href="https://www.citius.mj.pt/portal/consultas/consultasvenda.aspx">Citius</a>.<br>
     Página gerada automaticamente. Confirma sempre os dados no anúncio original.
   </footer>
 </div>
