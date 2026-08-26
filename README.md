@@ -99,9 +99,12 @@ em `monitor.py`.
 
 ## Fontes que ficaram de fora, e porquê
 
-- **Citius** — publica anúncios de insolvência filtrados por tribunal, não
-  imóveis com localização e preço. Baixo proveito, e é ASP.NET com `__VIEWSTATE`,
-  caro de manter.
+- **Citius / Publicidade da insolvência** (`ConsultasCire.aspx`) — anúncios de
+  processos, sem localização nem preço no texto. Diferente de `consultasvenda.aspx`,
+  que é a fonte 4 e essa vale muito.
+- **Citius / Processos declarativos** (`ConsultaVendaAnuncios.aspx`) — os anúncios
+  de venda em insolvência (art.º 164.º CIRE) trazem a localização apenas dentro dos
+  documentos anexos, não no texto pesquisável. Ficaria caro e frágil.
 - **Portal das Finanças direto** — não expõe listagem própria acessível; o
   agregador `pesquisabenspenhorados.com` já o cobre.
 - **Conservatória do Registo Predial** — penhoras registadas não são vendas.
