@@ -182,10 +182,16 @@ def _normalizado(registo, texto):
         extra.append(("Contacto", contacto.group(1)))
 
     tipo = registo.get("Tipo de Bem", "Bem")
+
+    # Cortar o título na palavra, não a meio dela.
+    resumo_curto = descricao
+    if len(resumo_curto) > 70:
+        resumo_curto = resumo_curto[:70].rsplit(" ", 1)[0].rstrip(",;.") + "…"
+
     return {
         "fonte": NOME,
         "id": "citius-%s" % registo["htmlId"],
-        "titulo": "%s — %s" % (tipo, descricao[:70] or registo["htmlId"]),
+        "titulo": "%s — %s" % (tipo, resumo_curto or registo["htmlId"]),
         "resumo": " · ".join(
             p for p in [tipo, registo.get("Modalidade"), CONCELHO] if p
         ),

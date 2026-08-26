@@ -2,7 +2,53 @@
   "atualizado_em": "2026-08-26T19:00:16+00:00",
   "fontes": {
     "citius": {
-      "itens": {},
+      "itens": {
+        "citius-7916383": {
+          "ativo": false,
+          "item": {
+            "coordenadas": null,
+            "data_fim": "Vendido",
+            "descricao": "Cultura, pastagem, eucaliptal e pinhal, sita em Lapinheira, freguesia de Formariz, concelho de Paredes de Coura, a confrontar do Norte e Poente com Caminho e Junta de Freguesia, do Sul com Caminho e Laura Rosa de Amorim, e do Nascente com Caminho e Alfredo Luís Pereira Dantas, descrita na Conservatória do Registo Predial de Paredes de Coura sob o nº 1321 8211 Formariz, e inscrita na matriz predial rústica sob o artigo 504",
+            "extra": [
+              [
+                "Estado",
+                "Vendido"
+              ],
+              [
+                "Modalidade",
+                "Venda por negociação particular"
+              ],
+              [
+                "Espécie",
+                "Execução Comum (Ag.Execução)"
+              ],
+              [
+                "Processo",
+                "2402/09.8TBVCT"
+              ],
+              [
+                "Agente de execução",
+                "ISABEL RAMOS"
+              ],
+              [
+                "Contacto",
+                "1529@solicitador.net"
+              ]
+            ],
+            "fonte": "citius",
+            "id": "citius-7916383",
+            "local": "Paredes de Coura",
+            "resumo": "Imóvel · Venda por negociação particular · Paredes de Coura",
+            "rotulo_data": "Estado",
+            "titulo": "Imóvel — Cultura, pastagem, eucaliptal e pinhal, sita em Lapinheira, freguesia…",
+            "url": "https://www.citius.mj.pt/portal/consultas/consultasvenda.aspx",
+            "valor": "17 000,00 €"
+          },
+          "nota": "encontrado no varrimento histórico dos 214 tribunais do Citius",
+          "ultima_vez_ativo": "2026-08-05T15:00:00+00:00",
+          "visto_em": "2026-08-05T15:00:00+00:00"
+        }
+      },
       "verificado_em": "2026-08-26T19:00:07+00:00"
     },
     "eleiloes": {
