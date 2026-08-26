@@ -1,6 +1,10 @@
 {
-  "atualizado_em": "2026-08-26T14:14:27+00:00",
+  "atualizado_em": "2026-08-26T18:56:13+00:00",
   "fontes": {
+    "citius": {
+      "itens": {},
+      "verificado_em": "2026-08-26T18:55:57+00:00"
+    },
     "eleiloes": {
       "itens": {
         "LO1493402026": {
@@ -88,11 +92,11 @@
     },
     "financas": {
       "itens": {},
-      "verificado_em": "2026-08-26T14:14:24+00:00"
+      "verificado_em": "2026-08-26T18:55:57+00:00"
     },
     "leilosoc": {
       "itens": {},
-      "verificado_em": "2026-08-26T14:14:24+00:00"
+      "verificado_em": "2026-08-26T18:55:57+00:00"
     }
   }
 }
