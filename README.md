@@ -7,13 +7,14 @@ terrenos antes que passem despercebidos.
 Avisa de **novidades** e também de **alterações** aos leilões que já conhece —
 subida do lance, adiamento da data, corte no valor base.
 
-Três fontes, um só email:
+Quatro fontes, um só email:
 
 | Fonte                                                                                  | O que cobre                                       | Ficheiro             |
 | -------------------------------------------------------------------------------------- | ------------------------------------------------- | -------------------- |
 | [pesquisabenspenhorados.com](https://www.pesquisabenspenhorados.com/leiloes-vendas-financas/) | vendas das Finanças (agrega o Portal das Finanças) | `fonte_financas.py`  |
 | [e-leiloes.pt](https://www.e-leiloes.pt/)                                                | execuções judiciais (OSAE) — é onde estão os imóveis | `fonte_eleiloes.py`  |
 | [Leilosoc](https://leilosoc.com/pt/category/5-imovel/)                                   | leiloeira privada (execuções, insolvências, banca) | `fonte_leilosoc.py`  |
+| [Citius](https://www.citius.mj.pt/portal/consultas/consultasvenda.aspx)                  | registo oficial das vendas judiciais | `fonte_citius.py`    |
 
 Cada fonte tem o seu espaço no `seen.json`, para os IDs não colidirem.
 
@@ -105,6 +106,47 @@ em `monitor.py`.
   agregador `pesquisabenspenhorados.com` já o cobre.
 - **Conservatória do Registo Predial** — penhoras registadas não são vendas.
 
+## Fonte 4 — Citius
+
+Registo oficial das vendas em processos executivos. Cobre modalidades que o
+e-leiloes não mostra: **venda por negociação particular, carta fechada,
+adjudicação**. Foi assim que se encontrou (05/08/2026) um terreno em Formariz,
+Paredes de Coura, com valor base de 17 000 €, vendido por negociação particular
+— nunca teria aparecido nas outras três fontes.
+
+Três armadilhas, todas custaram tempo:
+
+1. Sem marcar **"Ignorar Datas"** (`chkDatas=on`) a pesquisa devolve sempre 0,
+   qualquer que seja o intervalo.
+2. A listagem **trunca a descrição** e o concelho costuma ficar do lado cortado
+   ("Freguesia de Ch..." era Melgaço). Tem de se abrir o detalhe de cada registo
+   em `ConsultasVenda.aspx/GetHtmlDetails`, com `{"htmlId": N}` — o parâmetro
+   chama-se `htmlId`, não `id`.
+3. O filtro é por **tribunal**, que é onde corre o processo e não onde está o
+   bem. O terreno de Formariz estava no Juízo Central Cível de Viana do Castelo,
+   não no tribunal de Paredes de Coura (esse não tem registo nenhum). Por isso
+   varrem-se os dez tribunais da comarca e procura-se o concelho no texto.
+
+Varre-se só a comarca de Viana do Castelo e só o estado "Em venda": 95 registos,
+contra 3655 em venda no país. Varrer o país todo todos os dias seria abusar de um
+site do Estado.
+
+Cuidado com falsos positivos: há um executado a morar em **"Coura de Seixas"**
+(Caminha), cujos móveis apareciam em nove registos. Por isso o filtro exige
+"Paredes de Coura" ou uma freguesia distintiva do concelho — e ficam
+deliberadamente de fora nomes comuns noutros lados (Ferreira, Parada, Cunha,
+Castanheira, Linhares, Resende).
+
+## Varrimento histórico (05/08/2026)
+
+Varreram-se os 214 tribunais do país e abriram-se os 5651 registos, um a um,
+com a descrição completa, à procura de Paredes de Coura em qualquer estado
+(em venda, vendido, anulado, suspenso). Resultado: **um único imóvel** — o
+terreno de Formariz, já vendido.
+
+Fica de fora o histórico do e-leiloes.pt: o endpoint `EventosResultados` exige
+login (`userNotLogged`).
+
 ## Onde cada fonte corre — e porquê
 
 O **e-leiloes.pt filtra a porta 443 a IPs estrangeiros e de datacenter**. Do
@@ -117,6 +159,7 @@ Por isso:
 | ---------- | -------------- | --------- |
 | Finanças   | sim            | sim       |
 | Leilosoc   | sim            | sim       |
+| Citius     | sim            | sim       |
 | e-leiloes  | **não** (`SALTAR_FONTES=eleiloes`) | sim |
 
 Uma fonte em baixo não cala as outras: cada uma é tentada em separado, as boas
