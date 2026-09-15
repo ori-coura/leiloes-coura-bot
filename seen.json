@@ -1,5 +1,5 @@
 {
-  "atualizado_em": "2026-09-15T11:36:11+00:00",
+  "atualizado_em": "2026-09-15T12:30:17+00:00",
   "fontes": {
     "citius": {
       "itens": {
@@ -49,7 +49,7 @@
           "visto_em": "2026-08-05T15:00:00+00:00"
         }
       },
-      "verificado_em": "2026-09-14T13:43:05+00:00"
+      "verificado_em": "2026-09-15T12:29:59+00:00"
     },
     "eleiloes": {
       "itens": {
@@ -138,11 +138,11 @@
     },
     "financas": {
       "itens": {},
-      "verificado_em": "2026-09-15T08:22:26+00:00"
+      "verificado_em": "2026-09-15T12:29:59+00:00"
     },
     "leilosoc": {
       "itens": {},
-      "verificado_em": "2026-09-15T08:22:26+00:00"
+      "verificado_em": "2026-09-15T12:29:59+00:00"
     }
   }
 }
