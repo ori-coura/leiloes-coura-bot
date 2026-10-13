@@ -30,24 +30,30 @@ O `gerar_pagina.py` não vai à internet: lê só o `seen.json` que o `monitor.p
 gravou. Por isso o estado guarda o item completo e não apenas o ID — os valores
 (sobretudo o lance atual) mudam de dia para dia.
 
-## Fonte 1 — Finanças
+## Fonte 1 — pesquisabenspenhorados.com
 
-A [página do distrito de Viana do Castelo](https://www.pesquisabenspenhorados.com/leiloes-vendas-financas/DirectorySearch.aspx?viewType=1&districtId=174)
-lista os 10 concelhos:
+**O site foi reconstruído de raiz em outubro de 2026** e o scraping antigo deixou
+de funcionar (o workflow falhou todos os dias de 10 a 13/10 com "Não encontrei o
+bloco de concelhos"). Saiu o ASP.NET e entraram URLs limpos; o endereço antigo
+redireciona para `/distrito/<distrito>`.
 
-- concelho **sem** registos → texto simples: `<li>Paredes De Coura</li>`
-- concelho **com** registos → link: `<li><a href="...viewType=3&municipalityId=XXXX">…</a></li>`
+Acabou o truque do "link vs texto simples" e o `municipalityId`. Agora há um URL
+por concelho, o que é bem mais sólido:
 
-O script procura "Paredes De Coura" nessa lista (sem acentos, sem maiúsculas). Se
-for texto simples, não há nada. Se for link, segue-o.
+```
+/distrito/viana-do-castelo/paredes-de-coura
+```
 
-**O `municipalityId` nunca é fixo nem adivinhado** — é sempre lido do link. O site
-ignora IDs inválidos e devolve outro concelho, por isso confirma-se ainda que o
-`<h1>` da página de destino diz mesmo "Paredes De Coura".
+Sem anúncios, a página diz "Nenhum anúncio corresponde a estes filtros". Os
+cartões são `ul.listings li.listing`, a paginação é `?pagina=N` com 20 por página,
+e cada anúncio tem página própria em `/anuncio/<origem>/<referência>` com os
+factos em `dl.detail-facts` e o link para a fonte em `a.detail-origin`.
 
-Cada item é identificado por `sf.ano.idVenda` (do link `detalheVenda.action`), que
-corresponde ao "N.º Leilão Finanças" mostrado no site. A paginação é `&page=N`, 10
-por página, e devolve **404** para páginas além da última.
+**O agregador passou a incluir também o e-leiloes.pt**, que o GitHub Actions não
+alcança por bloqueio de IP — por aqui esses anúncios chegam na mesma ao CI. Os de
+origem `eleiloes` levam `duplica_de`, e o monitor descarta-os quando a fonte
+direta também correu (no Mac), ficando a versão rica. A recolha é feita toda antes
+do processamento, senão o descarte dependia da ordem das fontes e nunca disparava.
 
 ## Fonte 2 — e-leiloes.pt
 

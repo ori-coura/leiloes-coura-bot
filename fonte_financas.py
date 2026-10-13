@@ -1,246 +1,189 @@
 """
-Fonte: pesquisabenspenhorados.com — vendas de bens penhorados das Finanças.
+Fonte: pesquisabenspenhorados.com — agregador de bens penhorados.
 
-Deteção
--------
-A página do distrito de Viana do Castelo lista os 10 concelhos. Os concelhos
-SEM registos aparecem como texto simples (<li>Paredes De Coura</li>); os que
-TÊM registos aparecem como link (<li><a href="...municipalityId=XXXX">…</a></li>).
+ATENÇÃO: o site foi reconstruído de raiz em outubro de 2026. Saiu o ASP.NET
+(`DirectorySearch.aspx?viewType=1&districtId=174`) e entrou um site com URLs
+limpos. O endereço antigo passou a redirecionar para `/distrito/<distrito>`.
 
-O municipalityId NUNCA é fixo nem adivinhado: é sempre lido do link detetado.
-O site ignora IDs inválidos e devolve outro concelho, por isso confirma-se ainda
-que o <h1> da página de destino é mesmo o concelho certo.
+O que se perdeu e o que se ganhou
+---------------------------------
+Desapareceu o truque do "link vs texto simples" — o concelho sem anúncios
+aparecia como texto e com anúncios como link, e era daí que se lia o
+municipalityId. Agora há um URL direto por concelho:
+
+    /distrito/viana-do-castelo/paredes-de-coura
+
+Sem anúncios, a página diz "Nenhum anúncio corresponde a estes filtros".
+Nada de IDs para adivinhar, o que torna isto bem mais sólido do que era.
+
+Ganhou-se uma coisa importante: o agregador passou a incluir **também o
+e-leiloes.pt**, que o GitHub Actions não consegue alcançar por bloqueio de IP.
+Por aqui esses anúncios chegam na mesma ao CI. Os que vierem do e-leiloes são
+marcados com `duplica_de`, para o monitor não avisar duas vezes quando a fonte
+direta também correu (no Mac).
 """
 
 import re
-from urllib.parse import parse_qs, urljoin, urlparse
-
+from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup
 
-from comum import (
-    CONCELHO,
-    TIMEOUT,
-    SESSAO,
-    ScrapeError,
-    chave,
-    normalizar,
-)
+from comum import CONCELHO, SESSAO, TIMEOUT, ScrapeError, normalizar
 
-NOME = "financas"
-ETIQUETA = "Finanças"
+NOME = "financas"  # mantém-se, para não partir o histórico no seen.json
+ETIQUETA = "Pesquisa Bens Penhorados"
 
-BASE = "https://www.pesquisabenspenhorados.com/leiloes-vendas-financas/"
-DISTRITO_URL = BASE + "DirectorySearch.aspx?viewType=1&districtId=174"  # Viana do Castelo
-MAX_PAGINAS = 25  # travão de segurança
+BASE = "https://www.pesquisabenspenhorados.com"
+CONCELHO_URL = BASE + "/distrito/viana-do-castelo/paredes-de-coura"
+MAX_PAGINAS = 25
 
-CAMPOS = {
-    "localizacao": "localizacao",
-    "no leilao financas": "numero",
-    "valor base": "valor",
-    "data venda": "data_venda",
-    "data indexacao": "data_indexacao",
-}
+SEM_RESULTADOS = "nenhum anuncio corresponde"
+ORIGENS = {"financas": "Finanças", "eleiloes": "e-leilões"}
 
 
-def obter(url, tolerar_404=False):
+def obter(url):
     resposta = SESSAO.get(url, timeout=TIMEOUT)
-    if tolerar_404 and resposta.status_code == 404:
-        return None  # página além da última: o site devolve 404, não uma lista vazia
     resposta.raise_for_status()
-    resposta.encoding = "utf-8"  # o site declara utf-8; não deixar o requests adivinhar
+    resposta.encoding = "utf-8"
     return BeautifulSoup(resposta.text, "html.parser")
 
 
-def procurar_concelho(sopa):
-    """
-    Devolve o URL da listagem do concelho, ou None se estiver como texto simples.
-    Levanta ScrapeError se o concelho nem sequer aparecer na página.
-    """
-    lista = sopa.find(id="ctl00_body_seeByMunicipalityDiv") or sopa.find(
-        class_="link-table"
-    )
-    if lista is None:
-        raise ScrapeError(
-            "Não encontrei o bloco de concelhos na página do distrito "
-            "(esperava #ctl00_body_seeByMunicipalityDiv ou .link-table)."
-        )
-
-    itens = lista.find_all("li")
-    if not itens:
-        raise ScrapeError("Bloco de concelhos encontrado mas sem <li> lá dentro.")
-
-    alvo = normalizar(CONCELHO)
-    for li in itens:
-        if normalizar(li.get_text()) != alvo:
-            continue
-        ligacao = li.find("a", href=True)
-        if ligacao is None:
-            return None  # texto simples => sem registos
-        return urljoin(BASE, ligacao["href"])
-
-    raise ScrapeError(
-        "'%s' não aparece na lista de concelhos. Encontrados: %s"
-        % (CONCELHO, ", ".join(li.get_text(strip=True) for li in itens))
-    )
+def _texto(no):
+    return re.sub(r"\s+", " ", no.get_text(" ", strip=True)) if no else ""
 
 
-def _valor_do_campo(etiqueta):
-    """
-    O site escreve <b>Valor Base:</b>&nbsp;742,55&nbsp;€ — o valor é o texto do
-    contentor menos o texto da própria etiqueta.
-    """
-    contentor = etiqueta.parent
-    texto = contentor.get_text(" ", strip=True)
-    texto = texto.replace(etiqueta.get_text(" ", strip=True), "", 1)
-    texto = texto.replace("\xa0", " ").replace(">>>", "")
-    return re.sub(r"\s+", " ", texto).strip(" :")
+def _paginas(sopa):
+    """Lê 'N anúncios · página 1 de 3' e devolve o total de páginas."""
+    resumo = _texto(sopa.find("p", class_="results-summary"))
+    encontrado = re.search(r"p[áa]gina\s+\d+\s+de\s+(\d+)", resumo, re.I)
+    return int(encontrado.group(1)) if encontrado else 1
 
 
-def _id_do_link(href):
-    """ID estável a partir de detalheVenda.action?idVenda=1&sf=2321&ano=2023."""
-    params = parse_qs(urlparse(href).query)
-    try:
-        return "%s.%s.%s" % (params["sf"][0], params["ano"][0], params["idVenda"][0])
-    except (KeyError, IndexError):
-        return None
+def _cartoes(sopa):
+    return sopa.select("ul.listings li.listing")
 
 
-def _contentor_do_item(etiqueta):
-    """
-    Sobe a partir do <b>N.º Leilão Finanças:</b> até à <div class="row"> que já
-    contém o item completo (localização + valor + data de venda).
-    """
-    for ancestral in etiqueta.parents:
-        if ancestral.name != "div":
-            continue
-        if "row" not in (ancestral.get("class") or []):
-            continue
-        texto = normalizar(ancestral.get_text(" ", strip=True))
-        if "valor base" in texto and "data venda" in texto and "localizacao" in texto:
-            return ancestral
-    return None
+def _do_cartao(cartao):
+    ligacao = cartao.select_one("h2 a[href]")
+    if ligacao is None:
+        raise ScrapeError("Cartão de anúncio sem <h2><a>.")
 
+    href = ligacao["href"]
+    partes = re.match(r"/anuncio/([^/]+)/(.+)$", href)
+    if not partes:
+        raise ScrapeError("Href de anúncio inesperado: %s" % href)
+    origem, referencia = partes.group(1), partes.group(2)
 
-def extrair_itens(sopa):
-    itens = []
-    for etiqueta in sopa.find_all("b"):
-        if chave(etiqueta.get_text()) != "no leilao financas":
-            continue
+    meta = cartao.select("p.listing-meta > span")
+    etiquetas = [_texto(s) for s in meta]
+    # O primeiro span é a fonte; os seguintes, categoria e modalidade.
+    categoria = etiquetas[1] if len(etiquetas) > 1 else ""
+    modalidade = etiquetas[2] if len(etiquetas) > 2 else ""
 
-        contentor = _contentor_do_item(etiqueta)
-        if contentor is None:
-            raise ScrapeError(
-                "Encontrei 'N.º Leilão Finanças' mas não consegui isolar o bloco do item."
-            )
+    valor = _texto(cartao.select_one("span.listing-value")) or "?"
 
-        ligacao = contentor.find("a", href=lambda h: h and "detalheVenda.action" in h)
-        if ligacao is None:
-            raise ScrapeError("Item sem link detalheVenda.action.")
+    prazo = ""
+    for span in cartao.select("p.listing-numbers > span"):
+        texto = _texto(span)
+        if texto.lower().startswith("termina"):
+            prazo = texto.replace("termina", "").strip()
 
-        url = urljoin(BASE, ligacao["href"])
-        bruto = {"id": _id_do_link(url) or _valor_do_campo(etiqueta), "url": url}
-
-        for negrito in contentor.find_all("b"):
-            campo = CAMPOS.get(chave(negrito.get_text()))
-            if campo:
-                bruto[campo] = _valor_do_campo(negrito)
-
-        # A descrição é o bloco destacado (col-sm-12) no topo do item.
-        descricao = contentor.find("div", class_=lambda c: c and "col-sm-12" in c)
-        bruto["descricao"] = (
-            re.sub(r"\s+", " ", descricao.get_text(" ", strip=True))
-            if descricao
-            else ""
-        )
-        itens.append(bruto)
-    return itens
-
-
-def total_de_registos(sopa):
-    """Lê 'Resultados 1 - 10 de 16.' -> 16. Devolve None se não existir."""
-    div = sopa.find(id="ctl00_body_numberOfRecordsInformationDiv")
-    if div is None:
-        return None
-    encontrado = re.search(r"de\s+(\d+)", div.get_text())
-    return int(encontrado.group(1)) if encontrado else None
-
-
-def listar_todos(url_concelho, validar_titulo=True):
-    """Percorre todas as páginas (&page=N) e devolve (itens_brutos, total_anunciado)."""
-    sopa = obter(url_concelho)
-
-    titulo = sopa.find("h1")
-    if (
-        validar_titulo
-        and titulo
-        and normalizar(titulo.get_text()) != normalizar(CONCELHO)
-    ):
-        raise ScrapeError(
-            "O link levou a '%s' e não a '%s' — o site trocou o concelho."
-            % (titulo.get_text(strip=True), CONCELHO)
-        )
-
-    total = total_de_registos(sopa)
-    itens = extrair_itens(sopa)
-
-    if total is not None and total > 0 and not itens:
-        raise ScrapeError(
-            "O site anuncia %d registos mas não extraí nenhum — os seletores mudaram."
-            % total
-        )
-
-    pagina = 1
-    while total is not None and len(itens) < total and pagina < MAX_PAGINAS:
-        pagina += 1
-        separador = "&" if "?" in url_concelho else "?"
-        sopa_seguinte = obter(
-            "%s%spage=%d" % (url_concelho, separador, pagina), tolerar_404=True
-        )
-        if sopa_seguinte is None:
-            break
-        seguinte = extrair_itens(sopa_seguinte)
-        if not seguinte:
-            break
-        itens.extend(seguinte)
-
-    vistos, unicos = set(), []
-    for item in itens:
-        if item["id"] not in vistos:
-            vistos.add(item["id"])
-            unicos.append(item)
-    return unicos, total
-
-
-def _normalizado(bruto):
     return {
-        "fonte": NOME,
-        "id": bruto["id"],
-        "titulo": "Leilão n.º %s" % bruto.get("numero", bruto["id"]),
-        "resumo": "Venda das Finanças · %s" % bruto.get("localizacao", CONCELHO),
-        "descricao": bruto.get("descricao", ""),
-        "valor": bruto.get("valor", "?"),
-        "data_fim": bruto.get("data_venda", "?"),
-        "rotulo_data": "Data da venda",
-        "local": bruto.get("localizacao", CONCELHO),
-        "url": bruto["url"],
-        "coordenadas": None,
-        "extra": [("Indexado em", bruto["data_indexacao"])]
-        if bruto.get("data_indexacao")
-        else [],
+        "origem": origem,
+        "referencia": referencia,
+        "titulo": _texto(ligacao),
+        "url": urljoin(BASE, href),
+        "categoria": categoria,
+        "modalidade": modalidade,
+        "valor": valor,
+        "data_fim": prazo,
     }
+
+
+def _detalhe(url):
+    """Os factos do anúncio e o link para a fonte original."""
+    sopa = obter(url)
+    factos = {}
+    lista = sopa.find("dl", class_="detail-facts")
+    if lista:
+        for dt in lista.find_all("dt"):
+            dd = dt.find_next_sibling("dd")
+            if dd is not None:
+                factos[_texto(dt)] = _texto(dd)
+
+    origem = sopa.find("a", class_="detail-origin", href=True)
+    return factos, (origem["href"] if origem else None)
+
+
+def _normalizado(bruto, factos, link_origem):
+    extra = [("Fonte original", ORIGENS.get(bruto["origem"], bruto["origem"]))]
+    for rotulo in ("Categoria", "Modalidade", "Venda", "Indexado em"):
+        if factos.get(rotulo):
+            extra.append((rotulo, factos[rotulo]))
+    if link_origem:
+        extra.append(("Anúncio na fonte", link_origem))
+
+    item = {
+        "fonte": NOME,
+        "id": "%s/%s" % (bruto["origem"], bruto["referencia"]),
+        "titulo": bruto["titulo"],
+        "resumo": " · ".join(
+            p
+            for p in [
+                ORIGENS.get(bruto["origem"], bruto["origem"]),
+                bruto["categoria"],
+                CONCELHO,
+            ]
+            if p
+        ),
+        "descricao": factos.get("Localização", ""),
+        "valor": bruto["valor"],
+        "data_fim": bruto["data_fim"] or factos.get("Venda", "?"),
+        "rotulo_data": "Termina em",
+        "local": factos.get("Localização", CONCELHO),
+        "url": link_origem or bruto["url"],
+        "coordenadas": None,
+        "extra": extra,
+    }
+
+    # Este anúncio também chega pela fonte direta do e-leiloes (só no Mac, que o
+    # GitHub não lhe consegue aceder). Marca-se para não haver aviso em dobro.
+    if bruto["origem"] == "eleiloes":
+        item["duplica_de"] = {"fonte": "eleiloes", "id": bruto["referencia"]}
+    return item
 
 
 def recolher(registar=print):
     """Devolve a lista de itens normalizados do concelho nesta fonte."""
-    registar("[%s] a verificar a página do distrito..." % ETIQUETA)
-    url_concelho = procurar_concelho(obter(DISTRITO_URL))
+    sopa = obter(CONCELHO_URL)
 
-    if url_concelho is None:
-        registar("[%s] %s está como texto simples — sem registos." % (ETIQUETA, CONCELHO))
-        return []
+    titulo = _texto(sopa.find("title"))
+    if normalizar(CONCELHO) not in normalizar(titulo):
+        raise ScrapeError(
+            "A página do concelho tem o título '%s', que não fala de %s."
+            % (titulo, CONCELHO)
+        )
 
-    registar("[%s] %s está como LINK: %s" % (ETIQUETA, CONCELHO, url_concelho))
-    brutos, total = listar_todos(url_concelho)
-    registar("[%s] %d itens (o site anuncia %s)." % (ETIQUETA, len(brutos), total))
-    return [_normalizado(b) for b in brutos]
+    cartoes = _cartoes(sopa)
+    if not cartoes and SEM_RESULTADOS not in normalizar(_texto(sopa.find("main"))):
+        raise ScrapeError(
+            "Nem anúncios (ul.listings li.listing) nem a mensagem de lista vazia — "
+            "o site mudou outra vez."
+        )
+
+    brutos = [_do_cartao(c) for c in cartoes]
+    total = _paginas(sopa)
+    for pagina in range(2, min(total, MAX_PAGINAS) + 1):
+        seguinte = obter("%s?pagina=%d" % (CONCELHO_URL, pagina))
+        novos = _cartoes(seguinte)
+        if not novos:
+            break
+        brutos.extend(_do_cartao(c) for c in novos)
+
+    itens = []
+    for bruto in brutos:
+        factos, link = _detalhe(bruto["url"])
+        itens.append(_normalizado(bruto, factos, link))
+
+    registar("[%s] %d anúncios em %s." % (ETIQUETA, len(itens), CONCELHO))
+    return itens

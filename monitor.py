@@ -341,10 +341,13 @@ def main():
     novos, alterados = [], []
     agora = datetime.now(timezone.utc).isoformat(timespec="seconds")
 
-    falhas = []
+    # Primeiro recolhe-se tudo, só depois se processa. É preciso ter as fontes
+    # todas em mão para apanhar o mesmo anúncio vindo por dois caminhos; fazê-lo
+    # dentro do ciclo dependia da ordem das fontes e não apanhava nada.
+    falhas, colheita = [], {}
     for modulo in modulos:
         try:
-            itens = modulo.recolher()
+            colheita[modulo.NOME] = modulo.recolher()
         except Exception as erro:
             # Uma fonte em baixo não pode calar as outras: regista-se e segue-se.
             print(
@@ -353,8 +356,36 @@ def main():
             )
             falhas.append((modulo.ETIQUETA, erro))
             continue
-
         estado["fontes"][modulo.NOME]["verificado_em"] = agora
+
+    recolhido = {nome: {i["id"] for i in itens} for nome, itens in colheita.items()}
+
+    for modulo in modulos:
+        if modulo.NOME not in colheita:
+            continue
+        itens = colheita[modulo.NOME]
+
+        # O agregador também publica anúncios do e-leiloes. Se a fonte direta
+        # correu nesta passagem (só acontece no Mac), fica a dela, que é mais
+        # rica, e descarta-se a cópia para não avisar duas vezes.
+        repetidos = [
+            item
+            for item in itens
+            if item.get("duplica_de")
+            and item["duplica_de"]["id"]
+            in recolhido.get(item["duplica_de"]["fonte"], ())
+        ]
+        if repetidos:
+            ids_repetidos = {item["id"] for item in repetidos}
+            itens = [item for item in itens if item["id"] not in ids_repetidos]
+            print(
+                "[%s] %d repetido(s) de %s descartado(s)."
+                % (
+                    modulo.ETIQUETA,
+                    len(repetidos),
+                    repetidos[0]["duplica_de"]["fonte"],
+                )
+            )
         vistos = estado["fontes"][modulo.NOME]["itens"]
         ativos_agora = set()
 
