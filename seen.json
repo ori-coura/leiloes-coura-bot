@@ -1,5 +1,5 @@
 {
-  "atualizado_em": "2026-10-24T11:28:25+00:00",
+  "atualizado_em": "2026-10-24T12:28:58+00:00",
   "fontes": {
     "citius": {
       "itens": {
@@ -49,7 +49,7 @@
           "visto_em": "2026-08-05T15:00:00+00:00"
         }
       },
-      "verificado_em": "2026-10-21T16:00:08+00:00"
+      "verificado_em": "2026-10-24T12:27:45+00:00"
     },
     "eleiloes": {
       "itens": {
@@ -173,12 +173,61 @@
       "verificado_em": "2026-10-24T08:18:17+00:00"
     },
     "financas": {
-      "itens": {},
-      "verificado_em": "2026-10-24T08:18:17+00:00"
+      "itens": {
+        "eleiloes/NP1261432026": {
+          "ativo": true,
+          "item": {
+            "coordenadas": null,
+            "data_fim": "17/12/2026 14:30",
+            "descricao": "União das freguesias de Paredes de Coura e Resende · Paredes de Coura · Viana do Castelo",
+            "duplica_de": {
+              "fonte": "eleiloes",
+              "id": "NP1261432026"
+            },
+            "extra": [
+              [
+                "Fonte original",
+                "e-leilões"
+              ],
+              [
+                "Categoria",
+                "Estabelecimentos comerciais"
+              ],
+              [
+                "Modalidade",
+                "Leilão eletrónico"
+              ],
+              [
+                "Venda",
+                "de 28/09/2026 17:37 a 17/12/2026 14:30"
+              ],
+              [
+                "Indexado em",
+                "18/10/2026"
+              ],
+              [
+                "Anúncio na fonte",
+                "https://www.e-leiloes.pt/evento/NP1261432026"
+              ]
+            ],
+            "fonte": "financas",
+            "id": "eleiloes/NP1261432026",
+            "local": "União das freguesias de Paredes de Coura e Resende · Paredes de Coura · Viana do Castelo",
+            "resumo": "e-leilões · Estabelecimentos comerciais · Paredes de Coura",
+            "rotulo_data": "Termina em",
+            "titulo": "Quota",
+            "url": "https://www.e-leiloes.pt/evento/NP1261432026",
+            "valor": "99 760 €"
+          },
+          "ultima_vez_ativo": "2026-10-24T12:27:45+00:00",
+          "visto_em": "2026-10-24T12:27:45+00:00"
+        }
+      },
+      "verificado_em": "2026-10-24T12:27:45+00:00"
     },
     "leilosoc": {
       "itens": {},
-      "verificado_em": "2026-10-24T08:18:17+00:00"
+      "verificado_em": "2026-10-24T12:27:45+00:00"
     }
   }
 }
