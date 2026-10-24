@@ -26,7 +26,16 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from bs4 import BeautifulSoup
 
-from comum import CONCELHO, SESSAO, TIMEOUT, ScrapeError, normalizar
+import requests
+
+from comum import (
+    CONCELHO,
+    SESSAO,
+    TIMEOUT,
+    ScrapeError,
+    completar_cadeia,
+    normalizar,
+)
 
 NOME = "citius"
 ETIQUETA = "Citius"
@@ -207,8 +216,26 @@ def _normalizado(registo, texto):
     }
 
 
+ANFITRIAO = "www.citius.mj.pt"
+
+
+def _preparar_ligacao():
+    """
+    O citius.mj.pt envia só o certificado final, sem o intermédio. No Mac
+    passa despercebido (o sistema vai buscá-lo sozinho); no Linux dos runners
+    do GitHub Actions rebenta com "unable to get local issuer certificate".
+    Fazemos um pedido de teste e, se for isso, completamos a cadeia à mão —
+    antes de abrir os threads, para não o fazerem todos ao mesmo tempo.
+    """
+    try:
+        SESSAO.get(URL, timeout=TIMEOUT)
+    except requests.exceptions.SSLError:
+        completar_cadeia(SESSAO, ANFITRIAO)
+
+
 def recolher(registar=print):
     """Devolve a lista de itens normalizados do concelho nesta fonte."""
+    _preparar_ligacao()
     registos = []
     with ThreadPoolExecutor(max_workers=4) as executor:
         futuros = {executor.submit(_do_tribunal, t): t for t in TRIBUNAIS}

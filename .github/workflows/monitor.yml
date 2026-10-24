@@ -50,12 +50,15 @@ jobs:
             python monitor.py
           fi
 
+      # Corre mesmo que o passo anterior falhe: uma fonte em baixo não deve
+      # impedir que a página seja republicada com o resto. O job continua a
+      # ficar vermelho, para o aviso chegar na mesma.
       - name: Gerar a página
-        if: ${{ inputs.testar_email != true }}
+        if: ${{ !cancelled() && inputs.testar_email != true }}
         run: python gerar_pagina.py
 
       - name: Guardar o estado e a página
-        if: ${{ inputs.testar_email != true }}
+        if: ${{ !cancelled() && inputs.testar_email != true }}
         run: |
           if [[ -n "$(git status --porcelain seen.json docs)" ]]; then
             git config user.name "github-actions[bot]"

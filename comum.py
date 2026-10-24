@@ -1,8 +1,13 @@
 """Utilitários partilhados pelas fontes de leilões."""
 
+import os
 import re
+import socket
+import ssl
+import tempfile
 import unicodedata
 
+import certifi
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
@@ -44,6 +49,76 @@ def sessao():
 
 
 SESSAO = sessao()
+
+
+# OID 1.3.6.1.5.5.7.48.2 ("CA Issuers"), tal como aparece dentro do certificado.
+_CA_ISSUERS = bytes.fromhex("06082B06010505073002")
+
+
+def _ca_issuers(der):
+    """
+    Devolve o URL de onde se descarrega o certificado que assinou este, lido do
+    campo AIA. Em DER, a seguir ao OID vem logo a etiqueta 0x86 (um URL), o
+    comprimento num byte e o texto em ASCII — por isso dá para ler sem
+    bibliotecas de criptografia.
+    """
+    pos = der.find(_CA_ISSUERS)
+    if pos < 0:
+        return None
+    pos += len(_CA_ISSUERS)
+    if der[pos] != 0x86 or der[pos + 1] >= 0x80:
+        return None
+    tamanho = der[pos + 1]
+    return der[pos + 2 : pos + 2 + tamanho].decode("ascii", "replace")
+
+
+def _certificado_do_servidor(anfitriao):
+    """O certificado que o servidor apresenta, em DER, sem o validar."""
+    contexto = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+    contexto.check_hostname = False
+    contexto.verify_mode = ssl.CERT_NONE
+    with socket.create_connection((anfitriao, 443), timeout=TIMEOUT) as ligacao:
+        with contexto.wrap_socket(ligacao, server_hostname=anfitriao) as tls:
+            return tls.getpeercert(binary_form=True)
+
+
+def completar_cadeia(sessao_http, anfitriao):
+    """
+    Remendo para servidores que enviam só o certificado final, sem os
+    intermédios — é o caso do citius.mj.pt.
+
+    O macOS vai buscar o intermédio em falta sozinho (pelo campo AIA do
+    certificado), por isso no Mac isto nunca é preciso. O Linux dos runners do
+    GitHub Actions não vai, e a ligação morre com "unable to get local issuer
+    certificate". Aqui seguimos a mesma pista à mão: descarregamos os
+    intermédios, juntamo-los à lista de certificados de confiança do certifi e
+    dizemos à sessão para usar essa lista.
+
+    Não se perde segurança: os certificados acrescentados continuam a ter de
+    encadear até uma raiz já de confiança.
+    """
+    caminho = os.path.join(tempfile.gettempdir(), "cadeia-%s.pem" % anfitriao)
+    intermedios = []
+    der = _certificado_do_servidor(anfitriao)
+    for _ in range(4):
+        url = _ca_issuers(der)
+        if not url:
+            break
+        der = requests.get(url, timeout=TIMEOUT).content
+        if not der.startswith(b"\x30"):  # não veio em DER — desistimos
+            break
+        intermedios.append(ssl.DER_cert_to_PEM_cert(der))
+    if not intermedios:
+        raise ScrapeError(
+            "%s tem a cadeia de certificados incompleta e não foi possível "
+            "completá-la pelo AIA." % anfitriao
+        )
+    with open(caminho, "w") as ficheiro:
+        with open(certifi.where()) as base:
+            ficheiro.write(base.read())
+        ficheiro.writelines(intermedios)
+    sessao_http.verify = caminho
+    return caminho
 
 
 def normalizar(texto):
