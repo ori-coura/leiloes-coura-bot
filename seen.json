@@ -1,5 +1,5 @@
 {
-  "atualizado_em": "2026-10-28T13:52:09+00:00",
+  "atualizado_em": "2026-10-29T13:58:40+00:00",
   "fontes": {
     "citius": {
       "itens": {
@@ -49,7 +49,7 @@
           "visto_em": "2026-08-05T15:00:00+00:00"
         }
       },
-      "verificado_em": "2026-10-28T13:51:35+00:00"
+      "verificado_em": "2026-10-29T13:58:03+00:00"
     },
     "eleiloes": {
       "itens": {
@@ -219,15 +219,15 @@
             "url": "https://www.e-leiloes.pt/evento/NP1261432026",
             "valor": "99 760 €"
           },
-          "ultima_vez_ativo": "2026-10-28T13:51:35+00:00",
+          "ultima_vez_ativo": "2026-10-29T13:58:03+00:00",
           "visto_em": "2026-10-24T12:27:45+00:00"
         }
       },
-      "verificado_em": "2026-10-28T13:51:35+00:00"
+      "verificado_em": "2026-10-29T13:58:03+00:00"
     },
     "leilosoc": {
       "itens": {},
-      "verificado_em": "2026-10-28T13:51:35+00:00"
+      "verificado_em": "2026-10-29T13:58:03+00:00"
     }
   }
 }
