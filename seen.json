@@ -166,16 +166,16 @@
             "url": "https://www.e-leiloes.pt/evento/NP1261432026",
             "valor": "99 759,58 €"
           },
-          "ultima_vez_ativo": "2026-10-28T09:22:22+00:00",
+          "ultima_vez_ativo": "2026-10-31T09:31:52+00:00",
           "visto_em": "2026-10-02T08:25:07+00:00"
         }
       },
-      "verificado_em": "2026-10-28T09:22:22+00:00"
+      "verificado_em": "2026-10-31T09:31:52+00:00"
     },
     "financas": {
       "itens": {
         "eleiloes/NP1261432026": {
-          "ativo": true,
+          "ativo": false,
           "item": {
             "coordenadas": null,
             "data_fim": "17/12/2026 14:30",
