@@ -1,5 +1,5 @@
 {
-  "atualizado_em": "2026-11-15T14:33:34+00:00",
+  "atualizado_em": "2026-11-16T12:08:06+00:00",
   "fontes": {
     "citius": {
       "itens": {
@@ -49,7 +49,7 @@
           "visto_em": "2026-08-05T15:00:00+00:00"
         }
       },
-      "verificado_em": "2026-11-15T14:33:11+00:00"
+      "verificado_em": "2026-11-16T09:25:21+00:00"
     },
     "eleiloes": {
       "itens": {
@@ -96,6 +96,86 @@
           },
           "ultima_vez_ativo": "2026-08-04T15:42:15+00:00",
           "visto_em": "2026-07-26T17:15:52+00:00"
+        },
+        "LO1533222026": {
+          "ativo": true,
+          "item": {
+            "coordenadas": "41.91909784,-8.58576225",
+            "data_fim": "2026-12-15 10:30",
+            "descricao": "Prédio rústico, denominado de Bouça do Maldo, sito em Molde, lugar da Igreja, inscrito na matriz predial so o art.º 1437, da União das Freguesias de Formariz e Ferreira, concelho de Paredes de Coura e descrito na CRP. so o n.º 1262.",
+            "extra": [
+              [
+                "Tipo",
+                "Imóvel / Rústico"
+              ],
+              [
+                "Modalidade",
+                "Leilão online"
+              ],
+              [
+                "Valor mínimo",
+                "12 500,10 €"
+              ],
+              [
+                "Processo",
+                "156/23.4T8PCR"
+              ]
+            ],
+            "fonte": "eleiloes",
+            "id": "LO1533222026",
+            "local": "União das freguesias de Formariz e Ferreira, União das freguesias de Formariz e Ferreira, Paredes de Coura",
+            "resumo": "Rústico · União das freguesias de Formariz e Ferreira",
+            "rotulo_data": "Termina em",
+            "titulo": "Rústico — Terreno rústico",
+            "url": "https://www.e-leiloes.pt/evento/LO1533222026",
+            "valor": "14 706,00 €"
+          },
+          "ultima_vez_ativo": "2026-11-16T09:25:21+00:00",
+          "visto_em": "2026-11-16T09:25:21+00:00"
+        },
+        "LO1533232026": {
+          "ativo": true,
+          "item": {
+            "coordenadas": "41.91909784,-8.58576225",
+            "data_fim": "2026-12-15 10:30",
+            "descricao": "Casa de habitação e logradouro, sita no lugar de Monte, inscrito na matriz predial urbana sob o art.º 1340, da União das Freguesias de Formariz e Ferreira e descrito na CRP. sob o n.º 1261, com valor patrimonial de 19.163,20 euros, pelo valor de 20.000,00 euros.\r\n\r\nPrédio rústico, denominado de Campo do lugar do Monte, sito em Monte, inscrito na matriz predial sob o art.º 2491, da União das Freguesias de Formariz e Ferreira, concelho de Paredes de Coura e descrito na CRP. so o n.º 1263, pelo valor de 40.000,00 euros.\r\n\r\nEstes dois bens são vendidos em lote, pelo valor global de 81.825,00euros.",
+            "extra": [
+              [
+                "Tipo",
+                "Imóvel / Moradia"
+              ],
+              [
+                "Tipologia",
+                "T1"
+              ],
+              [
+                "Modalidade",
+                "Leilão online"
+              ],
+              [
+                "Valor mínimo",
+                "60 000,23 €"
+              ],
+              [
+                "Área",
+                "150 m²"
+              ],
+              [
+                "Processo",
+                "156/23.4T8PCR"
+              ]
+            ],
+            "fonte": "eleiloes",
+            "id": "LO1533232026",
+            "local": "União das freguesias de Formariz e Ferreira, União das freguesias de Formariz e Ferreira, Paredes de Coura",
+            "resumo": "Moradia · 150 m² · União das freguesias de Formariz e Ferreira",
+            "rotulo_data": "Termina em",
+            "titulo": "Moradia — Casa de Habitação",
+            "url": "https://www.e-leiloes.pt/evento/LO1533232026",
+            "valor": "70 588,50 €"
+          },
+          "ultima_vez_ativo": "2026-11-16T09:25:21+00:00",
+          "visto_em": "2026-11-16T09:25:21+00:00"
         },
         "NP1227312026": {
           "ativo": false,
@@ -166,16 +246,16 @@
             "url": "https://www.e-leiloes.pt/evento/NP1261432026",
             "valor": "99 759,58 €"
           },
-          "ultima_vez_ativo": "2026-11-15T09:57:34+00:00",
+          "ultima_vez_ativo": "2026-11-16T09:25:21+00:00",
           "visto_em": "2026-10-02T08:25:07+00:00"
         }
       },
-      "verificado_em": "2026-11-15T09:57:34+00:00"
+      "verificado_em": "2026-11-16T09:25:21+00:00"
     },
     "financas": {
       "itens": {
         "eleiloes/NP1261432026": {
-          "ativo": true,
+          "ativo": false,
           "item": {
             "coordenadas": null,
             "data_fim": "17/12/2026 14:30",
@@ -223,11 +303,11 @@
           "visto_em": "2026-10-24T12:27:45+00:00"
         }
       },
-      "verificado_em": "2026-11-15T14:33:11+00:00"
+      "verificado_em": "2026-11-16T09:25:21+00:00"
     },
     "leilosoc": {
       "itens": {},
-      "verificado_em": "2026-11-15T14:33:11+00:00"
+      "verificado_em": "2026-11-16T09:25:21+00:00"
     }
   }
 }
