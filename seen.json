@@ -1,5 +1,5 @@
 {
-  "atualizado_em": "2026-11-16T12:08:06+00:00",
+  "atualizado_em": "2026-11-16T16:48:21+00:00",
   "fontes": {
     "citius": {
       "itens": {
@@ -49,7 +49,7 @@
           "visto_em": "2026-08-05T15:00:00+00:00"
         }
       },
-      "verificado_em": "2026-11-16T09:25:21+00:00"
+      "verificado_em": "2026-11-16T16:47:55+00:00"
     },
     "eleiloes": {
       "itens": {
@@ -254,8 +254,104 @@
     },
     "financas": {
       "itens": {
+        "eleiloes/LO1533222026": {
+          "ativo": true,
+          "item": {
+            "coordenadas": null,
+            "data_fim": "15/12/2026 10:30",
+            "descricao": "União das freguesias de Formariz e Ferreira · Paredes de Coura · Viana do Castelo",
+            "duplica_de": {
+              "fonte": "eleiloes",
+              "id": "LO1533222026"
+            },
+            "extra": [
+              [
+                "Fonte original",
+                "e-leilões"
+              ],
+              [
+                "Categoria",
+                "Imóveis"
+              ],
+              [
+                "Modalidade",
+                "Leilão eletrónico"
+              ],
+              [
+                "Venda",
+                "de 16/11/2026 00:00 a 15/12/2026 10:30"
+              ],
+              [
+                "Indexado em",
+                "16/11/2026"
+              ],
+              [
+                "Anúncio na fonte",
+                "https://www.e-leiloes.pt/evento/LO1533222026"
+              ]
+            ],
+            "fonte": "financas",
+            "id": "eleiloes/LO1533222026",
+            "local": "União das freguesias de Formariz e Ferreira · Paredes de Coura · Viana do Castelo",
+            "resumo": "e-leilões · Imóveis · Paredes de Coura",
+            "rotulo_data": "Termina em",
+            "titulo": "Terreno rústico",
+            "url": "https://www.e-leiloes.pt/evento/LO1533222026",
+            "valor": "14 706 €"
+          },
+          "ultima_vez_ativo": "2026-11-16T16:47:55+00:00",
+          "visto_em": "2026-11-16T16:47:55+00:00"
+        },
+        "eleiloes/LO1533232026": {
+          "ativo": true,
+          "item": {
+            "coordenadas": null,
+            "data_fim": "15/12/2026 10:30",
+            "descricao": "União das freguesias de Formariz e Ferreira · Paredes de Coura · Viana do Castelo",
+            "duplica_de": {
+              "fonte": "eleiloes",
+              "id": "LO1533232026"
+            },
+            "extra": [
+              [
+                "Fonte original",
+                "e-leilões"
+              ],
+              [
+                "Categoria",
+                "Imóveis"
+              ],
+              [
+                "Modalidade",
+                "Leilão eletrónico"
+              ],
+              [
+                "Venda",
+                "de 16/11/2026 00:00 a 15/12/2026 10:30"
+              ],
+              [
+                "Indexado em",
+                "16/11/2026"
+              ],
+              [
+                "Anúncio na fonte",
+                "https://www.e-leiloes.pt/evento/LO1533232026"
+              ]
+            ],
+            "fonte": "financas",
+            "id": "eleiloes/LO1533232026",
+            "local": "União das freguesias de Formariz e Ferreira · Paredes de Coura · Viana do Castelo",
+            "resumo": "e-leilões · Imóveis · Paredes de Coura",
+            "rotulo_data": "Termina em",
+            "titulo": "Casa de Habitação",
+            "url": "https://www.e-leiloes.pt/evento/LO1533232026",
+            "valor": "70 589 €"
+          },
+          "ultima_vez_ativo": "2026-11-16T16:47:55+00:00",
+          "visto_em": "2026-11-16T16:47:55+00:00"
+        },
         "eleiloes/NP1261432026": {
-          "ativo": false,
+          "ativo": true,
           "item": {
             "coordenadas": null,
             "data_fim": "17/12/2026 14:30",
@@ -299,15 +395,15 @@
             "url": "https://www.e-leiloes.pt/evento/NP1261432026",
             "valor": "99 760 €"
           },
-          "ultima_vez_ativo": "2026-11-15T14:33:11+00:00",
+          "ultima_vez_ativo": "2026-11-16T16:47:55+00:00",
           "visto_em": "2026-10-24T12:27:45+00:00"
         }
       },
-      "verificado_em": "2026-11-16T09:25:21+00:00"
+      "verificado_em": "2026-11-16T16:47:55+00:00"
     },
     "leilosoc": {
       "itens": {},
-      "verificado_em": "2026-11-16T09:25:21+00:00"
+      "verificado_em": "2026-11-16T16:47:55+00:00"
     }
   }
 }
