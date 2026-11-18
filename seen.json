@@ -1,5 +1,5 @@
 {
-  "atualizado_em": "2026-11-18T11:35:13+00:00",
+  "atualizado_em": "2026-11-18T16:15:17+00:00",
   "fontes": {
     "citius": {
       "itens": {
@@ -49,7 +49,7 @@
           "visto_em": "2026-08-05T15:00:00+00:00"
         }
       },
-      "verificado_em": "2026-11-17T16:44:30+00:00"
+      "verificado_em": "2026-11-18T16:14:43+00:00"
     },
     "eleiloes": {
       "itens": {
@@ -255,7 +255,7 @@
     "financas": {
       "itens": {
         "eleiloes/LO1533222026": {
-          "ativo": false,
+          "ativo": true,
           "item": {
             "coordenadas": null,
             "data_fim": "15/12/2026 10:30",
@@ -299,11 +299,11 @@
             "url": "https://www.e-leiloes.pt/evento/LO1533222026",
             "valor": "14 706 €"
           },
-          "ultima_vez_ativo": "2026-11-17T16:44:30+00:00",
+          "ultima_vez_ativo": "2026-11-18T16:14:43+00:00",
           "visto_em": "2026-11-16T16:47:55+00:00"
         },
         "eleiloes/LO1533232026": {
-          "ativo": false,
+          "ativo": true,
           "item": {
             "coordenadas": null,
             "data_fim": "15/12/2026 10:30",
@@ -347,11 +347,11 @@
             "url": "https://www.e-leiloes.pt/evento/LO1533232026",
             "valor": "70 589 €"
           },
-          "ultima_vez_ativo": "2026-11-17T16:44:30+00:00",
+          "ultima_vez_ativo": "2026-11-18T16:14:43+00:00",
           "visto_em": "2026-11-16T16:47:55+00:00"
         },
         "eleiloes/NP1261432026": {
-          "ativo": false,
+          "ativo": true,
           "item": {
             "coordenadas": null,
             "data_fim": "17/12/2026 14:30",
@@ -395,15 +395,15 @@
             "url": "https://www.e-leiloes.pt/evento/NP1261432026",
             "valor": "99 760 €"
           },
-          "ultima_vez_ativo": "2026-11-17T16:44:30+00:00",
+          "ultima_vez_ativo": "2026-11-18T16:14:43+00:00",
           "visto_em": "2026-10-24T12:27:45+00:00"
         }
       },
-      "verificado_em": "2026-11-18T09:19:28+00:00"
+      "verificado_em": "2026-11-18T16:14:43+00:00"
     },
     "leilosoc": {
       "itens": {},
-      "verificado_em": "2026-11-18T09:19:28+00:00"
+      "verificado_em": "2026-11-18T16:14:43+00:00"
     }
   }
 }
